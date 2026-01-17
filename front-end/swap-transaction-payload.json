@@ -1,0 +1,137 @@
+{
+  "swapRequest": {
+    "userAddress": "<USER_WALLET_ADDRESS>",
+    "coinInType": "0x2::sui::SUI",
+    "coinOutType": "0x5d4b302506645c37ff133b98c4b50a5ae14841659738d6d733d59d0d217a93bf::coin::COIN",
+    "amountIn": 1000000000,
+    "slippageTolerance": 100
+  },
+  "quote": {
+    "provider": "cetus",
+    "input": {
+      "coinType": "0x2::sui::SUI",
+      "amount": "1",
+      "amountFormatted": "1 SUI"
+    },
+    "output": {
+      "coinType": "0x5d4b302506645c37ff133b98c4b50a5ae14841659738d6d733d59d0d217a93bf::coin::COIN",
+      "amount": "1.79212",
+      "amountFormatted": "0.000002 USDC"
+    },
+    "exchangeRate": 1.79212e-9,
+    "routes": [
+      {
+        "percent": "80",
+        "hops": 2,
+        "path": [
+          {
+            "provider": "AFTERMATH",
+            "poolId": "0x97aae7a80abb29c9feabbe7075028550230401ffe7fb745757d3c28a30437408",
+            "from": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "to": "0xf325ce1300e8dac124071d3152c5c5ee6174914f8bc2161e88329cf579246efc::afsui::AFSUI",
+            "amountIn": "800000000",
+            "amountOut": "754493453"
+          },
+          {
+            "provider": "AFTERMATH",
+            "poolId": "0xfd3f72a5285b0fe46be4930bde4fa4746505b7b7783ddfc56fea640efae7a905",
+            "from": "0xf325ce1300e8dac124071d3152c5c5ee6174914f8bc2161e88329cf579246efc::afsui::AFSUI",
+            "to": "0x5d4b302506645c37ff133b98c4b50a5ae14841659738d6d733d59d0d217a93bf::coin::COIN",
+            "amountIn": "754493453",
+            "amountOut": "1433729"
+          }
+        ]
+      },
+      {
+        "percent": "20",
+        "hops": 3,
+        "path": [
+          {
+            "provider": "FLOWXV3",
+            "poolId": "0x8ea1a42d05e889633bcb2f888809b0e4c83c5cf03af63a9ade4c6c8f29377e81",
+            "from": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+            "to": "0xaafb102dd0902f5055cadecd687fb5b71ca82ef0e0285d90afde828ec58ca96b::btc::BTC",
+            "amountIn": "200000000",
+            "amountOut": "378"
+          },
+          {
+            "provider": "CETUS",
+            "poolId": "0xa72776082624b0f5da55e385107fc0176114bfea5b281b880acae505a9bd1f1a",
+            "from": "0xaafb102dd0902f5055cadecd687fb5b71ca82ef0e0285d90afde828ec58ca96b::btc::BTC",
+            "to": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+            "amountIn": "378",
+            "amountOut": "358360"
+          },
+          {
+            "provider": "FLOWXV3",
+            "poolId": "0xf9cc1ec13370eadcbb2cbbae715d0b134fd12d4bbe1aa9e2effccb7ee9822e5f",
+            "from": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+            "to": "0x5d4b302506645c37ff133b98c4b50a5ae14841659738d6d733d59d0d217a93bf::coin::COIN",
+            "amountIn": "358360",
+            "amountOut": "358391"
+          }
+        ]
+      }
+    ]
+  },
+  "slippage": [
+    {
+      "percent": 0.5,
+      "minAmountOut": 1,
+      "minAmountOutFormatted": "0.000001 USDC"
+    },
+    {
+      "percent": 1,
+      "minAmountOut": 1,
+      "minAmountOutFormatted": "0.000001 USDC"
+    },
+    {
+      "percent": 2,
+      "minAmountOut": 1,
+      "minAmountOutFormatted": "0.000001 USDC"
+    },
+    {
+      "percent": 5,
+      "minAmountOut": 1,
+      "minAmountOutFormatted": "0.000001 USDC"
+    }
+  ],
+  "apiExample": {
+    "endpoint": "/api/swap/build-transaction",
+    "method": "POST",
+    "body": {
+      "userAddress": "<USER_WALLET_ADDRESS>",
+      "coinInType": "0x2::sui::SUI",
+      "coinOutType": "0x5d4b302506645c37ff133b98c4b50a5ae14841659738d6d733d59d0d217a93bf::coin::COIN",
+      "amountIn": 1000000000,
+      "slippageTolerance": 100
+    },
+    "expectedResponse": {
+      "transaction": "<Transaction object>",
+      "estimatedAmountOut": 1.79212,
+      "transactionBytes": "<base64 encoded bytes>"
+    }
+  },
+  "metadata": {
+    "timestamp": "2026-01-17T11:12:46.005Z",
+    "fetchTimeMs": 1475,
+    "network": "mainnet",
+    "allQuotes": [
+      {
+        "provider": "cetus",
+        "amountOut": 1.79212,
+        "amountOutFormatted": "0.000002 USDC"
+      },
+      {
+        "provider": "flowx",
+        "amountOut": 1.791867,
+        "amountOutFormatted": "0.000002 USDC"
+      },
+      {
+        "provider": "aftermath",
+        "amountOut": 1.791401,
+        "amountOutFormatted": "0.000002 USDC"
+      }
+    ]
+  }
+}
