@@ -1,15 +1,9 @@
 import type { Metadata } from "next";
-import { Exo_2, Playfair_Display } from "next/font/google";
+import { Archivo } from "next/font/google";
 import "./globals.css";
 import { NetworkProvider } from "@/lib/context/NetworkContext";
 
-const exo2 = Exo_2({ subsets: ["latin"], variable: "--font-exo-2" });
-const playfair = Playfair_Display({
-  subsets: ["latin"],
-  variable: "--font-playfair",
-  weight: ["400", "700", "900"],
-  style: ["normal", "italic"],
-});
+const archivo = Archivo({ subsets: ["latin"], variable: "--font-archivo" });
 
 export const metadata: Metadata = {
   title: "VestPay - Secure Web3 Wallet",
@@ -26,7 +20,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${exo2.variable} ${playfair.variable} font-sans `} suppressHydrationWarning>
+      <body className={`${archivo.variable} font-sans `} suppressHydrationWarning>
         <NetworkProvider>{children}</NetworkProvider>
       </body>
     </html>
