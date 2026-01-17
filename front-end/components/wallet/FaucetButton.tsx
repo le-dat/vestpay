@@ -1,9 +1,10 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { requestFaucet } from '@/lib/sui/utils';
-import { getCachedWalletInfo } from '@/lib/sui/passkey';
-import { useNetwork } from '@/lib/context/NetworkContext';
+import { useState } from "react";
+import { requestFaucet } from "@/lib/sui/utils";
+import { getCachedWalletInfo } from "@/lib/sui/passkey";
+import { useNetwork } from "@/lib/context/NetworkContext";
+import { Droplets, Loader2, CheckCircle2, XCircle } from "lucide-react";
 
 interface FaucetButtonProps {
   onSuccess?: () => void;
@@ -12,25 +13,25 @@ interface FaucetButtonProps {
 export default function FaucetButton({ onSuccess }: FaucetButtonProps) {
   const { network } = useNetwork();
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
   const walletInfo = getCachedWalletInfo();
 
   const handleRequest = async () => {
     if (!walletInfo?.address) {
-      setMessage('No wallet found');
+      setMessage("No wallet found");
       setIsError(true);
       return;
     }
 
-    if (network !== 'testnet') {
-      setMessage('Faucet only available on Testnet');
+    if (network !== "testnet") {
+      setMessage("Faucet only available on Testnet");
       setIsError(true);
       return;
     }
 
     setLoading(true);
-    setMessage('');
+    setMessage("");
     setIsError(false);
 
     try {
@@ -40,21 +41,20 @@ export default function FaucetButton({ onSuccess }: FaucetButtonProps) {
 
       if (result.success) {
         onSuccess?.();
-        // Clear message after 5 seconds
-        setTimeout(() => setMessage(''), 5000);
+        setTimeout(() => setMessage(""), 5000);
       }
     } catch (error: any) {
-      setMessage(error.message || 'Failed to request faucet');
+      setMessage(error.message || "Failed to request faucet");
       setIsError(true);
     } finally {
       setLoading(false);
     }
   };
 
-  if (network !== 'testnet') {
+  if (network !== "testnet") {
     return (
-      <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-4">
-        <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
+      <div className="bg-gray-50 border border-gray-100 rounded-2xl p-4">
+        <p className="text-xs text-gray-400 font-medium text-center">
           Faucet only available on Testnet
         </p>
       </div>
@@ -62,52 +62,54 @@ export default function FaucetButton({ onSuccess }: FaucetButtonProps) {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <button
         onClick={handleRequest}
         disabled={loading}
-        className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-3 px-6 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full flex items-center justify-center gap-2 bg-white border border-primary/20 text-primary hover:bg-primary/5 font-bold py-3 px-6 rounded-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
       >
         {loading ? (
-          <span className="flex items-center justify-center">
-            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            Requesting...
-          </span>
+          <>
+            <Loader2 className="w-5 h-5 animate-spin" />
+            <span>Requesting...</span>
+          </>
         ) : (
-          '💧 Get Free SUI from Faucet'
+          <>
+            <Droplets className="w-5 h-5 text-primary group-hover:animate-bounce" />
+            <span>Get Testnet SUI</span>
+          </>
         )}
       </button>
 
       {message && (
-        <div className={`rounded-lg p-3 ${isError
-            ? 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800'
-            : 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800'
-          }`}>
-          <p className={`text-sm ${isError
-              ? 'text-red-600 dark:text-red-400'
-              : 'text-green-600 dark:text-green-400'
-            }`}>
-            {message}
-          </p>
+        <div
+          className={`flex items-start gap-3 p-4 rounded-2xl border ${
+            isError
+              ? "bg-red-50 border-red-100 text-red-600"
+              : "bg-primary/5 border-primary/10 text-primary"
+          }`}
+        >
+          {isError ? (
+            <XCircle className="w-5 h-5 shrink-0" />
+          ) : (
+            <CheckCircle2 className="w-5 h-5 shrink-0" />
+          )}
+          <p className="text-sm font-medium">{message}</p>
         </div>
       )}
 
-      <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
-        <p>Receive 1 SUI on Testnet (may take a few seconds)</p>
-        <p>
-          Alternative: Get SUI from{' '}
+      <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100/50">
+        <p className="text-[11px] text-gray-400 font-medium leading-relaxed">
+          Receive 1 SUI on Testnet instantly. Troubleshooting? Join the{" "}
           <a
             href="https://discord.gg/sui"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-600 hover:underline"
+            className="text-primary hover:underline font-bold"
           >
             Sui Discord
-          </a>
-          {' '}#testnet-faucet channel
+          </a>{" "}
+          #testnet-faucet channel.
         </p>
       </div>
     </div>

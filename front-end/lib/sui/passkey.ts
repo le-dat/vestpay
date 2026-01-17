@@ -21,7 +21,7 @@ export async function createPasskeyWallet(email: string): Promise<{
     rpName: RP_NAME,
     rpId: RP_ID,
     authenticatorSelection: {
-      authenticatorAttachment: 'platform', // Use device authenticator (Touch ID, Face ID, Windows Hello)
+      authenticatorAttachment: 'cross-platform', // Use device authenticator (Touch ID, Face ID, Windows Hello)
       requireResidentKey: true,
       userVerification: 'required',
     },
@@ -42,6 +42,9 @@ export async function createPasskeyWallet(email: string): Promise<{
   // Cache keypair in memory for immediate use
   cacheKeypairInMemory(keypair);
 
+  // Store public key persistently for single-prompt login
+  storePublicKeyPersistently(email, publicKey.toBase64(), address);
+
   return {
     keypair,
     publicKey: publicKey.toBase64(),
@@ -51,7 +54,7 @@ export async function createPasskeyWallet(email: string): Promise<{
 
 /**
  * Recover existing Passkey wallet
- * Uses signAndRecover to derive public key from 2 signatures
+ * Uses stored public key for single-prompt login, falls back to 2-signature recovery
  */
 export async function recoverPasskeyWallet(): Promise<{
   keypair: PasskeyKeypair;
@@ -69,10 +72,58 @@ export async function recoverPasskeyWallet(): Promise<{
     };
   }
 
+  // Try to recover from localStorage (NEW - single prompt path)
+  const storedWallet = getStoredPublicKey();
+  if (storedWallet) {
+    try {
+      const provider = new BrowserPasskeyProvider(RP_NAME, {
+        rpName: RP_NAME,
+        rpId: RP_ID,
+        authenticatorSelection: {
+          authenticatorAttachment: 'cross-platform',
+          requireResidentKey: true,
+          userVerification: 'required',
+        },
+      } as BrowserPasswordProviderOptions);
+
+      // Sign a single message to authenticate (triggers ONE passkey prompt)
+      const testMessage = new TextEncoder().encode('Sui Wallet Login');
+      const possiblePks = await PasskeyKeypair.signAndRecover(provider, testMessage);
+
+      // Find the stored public key in the recovered keys
+      const matchedPk = possiblePks.find(pk => pk.toBase64() === storedWallet.publicKey);
+
+      if (!matchedPk) {
+        throw new Error('Stored public key does not match passkey');
+      }
+
+      // Reconstruct keypair with matched public key
+      const keypair = new PasskeyKeypair(matchedPk.toRawBytes(), provider);
+
+      // Cache for session
+      cacheKeypairInMemory(keypair);
+
+      return {
+        keypair,
+        publicKey: storedWallet.publicKey,
+        address: storedWallet.address,
+      };
+    } catch (error) {
+      console.error('Failed to recover with stored key, falling back to double-signature:', error);
+      // Fall through to original recovery method
+    }
+  }
+
+  // FALLBACK: Original double-signature recovery (for backward compatibility)
   try {
     const provider = new BrowserPasskeyProvider(RP_NAME, {
       rpName: RP_NAME,
       rpId: RP_ID,
+      authenticatorSelection: {
+        authenticatorAttachment: 'cross-platform',
+        requireResidentKey: true,
+        userVerification: 'required',
+      },
     } as BrowserPasswordProviderOptions);
 
     // Sign two different messages to recover public key
@@ -92,6 +143,10 @@ export async function recoverPasskeyWallet(): Promise<{
     // Reconstruct keypair
     const keypair = new PasskeyKeypair(commonPk.toRawBytes(), provider);
     const address = commonPk.toSuiAddress();
+
+    // Store for future logins
+    const email = sessionStorage.getItem('sui_wallet_email') || 'unknown';
+    storePublicKeyPersistently(email, commonPk.toBase64(), address);
 
     // Cache for future use
     cacheKeypairInMemory(keypair);
@@ -122,6 +177,46 @@ function findCommonPublicKey(
     }
   }
   return null;
+}
+
+/**
+ * Store public key persistently in localStorage
+ * Public keys are NOT SECRET per WebAuthn standards
+ */
+export function storePublicKeyPersistently(
+  email: string,
+  publicKey: string,
+  address: string
+): void {
+  if (typeof window !== 'undefined') {
+    const walletData = {
+      email,
+      publicKey,
+      address,
+      timestamp: Date.now(),
+    };
+    localStorage.setItem('sui_passkey_wallet', JSON.stringify(walletData));
+  }
+}
+
+/**
+ * Get stored public key from localStorage
+ */
+function getStoredPublicKey(): {
+  email: string;
+  publicKey: string;
+  address: string;
+} | null {
+  if (typeof window === 'undefined') return null;
+
+  const stored = localStorage.getItem('sui_passkey_wallet');
+  if (!stored) return null;
+
+  try {
+    return JSON.parse(stored);
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -170,6 +265,7 @@ export function clearWalletCache(): void {
   if (typeof window !== 'undefined') {
     sessionStorage.removeItem('sui_wallet_email');
     sessionStorage.removeItem('sui_wallet_info');
+    localStorage.removeItem('sui_passkey_wallet');
   }
   // Also clear in-memory keypair cache
   const { clearKeypairCache } = require('./keypair-cache');
