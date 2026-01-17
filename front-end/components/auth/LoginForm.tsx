@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { recoverPasskeyWallet, cacheKeypair } from '@/lib/sui/passkey';
+import { cacheKeypairInMemory } from '@/lib/sui/keypair-cache';
 import { validateEmail } from '@/lib/utils/validation';
 
 export default function LoginForm() {
@@ -39,6 +40,11 @@ export default function LoginForm() {
         publicKey: wallet.publicKey,
         address: wallet.address,
       });
+
+      // IMPORTANT: Cache keypair in memory for transactions
+      cacheKeypairInMemory(wallet.keypair);
+      
+      console.log('✅ Passkey cached successfully for swap transactions');
 
       // Redirect to dashboard
       router.push('/dashboard');

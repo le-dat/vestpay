@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createPasskeyWallet } from '@/lib/sui/passkey';
+import { cacheKeypairInMemory } from '@/lib/sui/keypair-cache';
 import { validateEmail } from '@/lib/utils/validation';
 
 export default function RegisterForm() {
@@ -26,7 +27,12 @@ export default function RegisterForm() {
 
     try {
       // Create Passkey wallet
-      const { address, publicKey } = await createPasskeyWallet(email);
+      const { keypair, address, publicKey } = await createPasskeyWallet(email);
+
+      // IMPORTANT: Cache keypair in memory for transactions
+      cacheKeypairInMemory(keypair);
+      
+      console.log('✅ Passkey cached successfully for swap transactions');
 
       // Redirect to dashboard
       router.push('/dashboard');

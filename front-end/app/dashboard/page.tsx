@@ -9,11 +9,13 @@ import TokenList from '@/components/wallet/TokenList';
 import NetworkSwitcher from '@/components/wallet/NetworkSwitcher';
 import FaucetButton from '@/components/wallet/FaucetButton';
 import { getCachedWalletInfo, clearWalletCache } from '@/lib/sui/passkey';
+import SwapInterface from '@/components/swap/SwapInterface';
 
 export default function DashboardPage() {
   const [walletInfo, setWalletInfo] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [showSwap, setShowSwap] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -70,6 +72,41 @@ export default function DashboardPage() {
         <div className="mb-6">
           <NetworkSwitcher />
         </div>
+
+        {/* Quick Actions */}
+        <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <button
+            onClick={() => setShowSwap(!showSwap)}
+            className="p-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl transition-all transform hover:scale-[1.02] shadow-lg text-left"
+          >
+            <div className="text-2xl mb-2">🔄</div>
+            <div className="font-bold">Swap Tokens</div>
+            <div className="text-sm opacity-90">Trade at best rates</div>
+          </button>
+          <a
+            href="#send"
+            className="p-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl transition-all border-2 border-gray-200 dark:border-gray-700"
+          >
+            <div className="text-2xl mb-2">📤</div>
+            <div className="font-bold text-gray-900 dark:text-white">Send</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">Transfer tokens</div>
+          </a>
+          <a
+            href="#faucet"
+            className="p-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl transition-all border-2 border-gray-200 dark:border-gray-700"
+          >
+            <div className="text-2xl mb-2">💧</div>
+            <div className="font-bold text-gray-900 dark:text-white">Faucet</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">Get testnet SUI</div>
+          </a>
+        </div>
+
+        {/* Swap Interface */}
+        {showSwap && (
+          <div className="mb-6">
+            <SwapInterface walletInfo={walletInfo} />
+          </div>
+        )}
 
         {/* Main Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
