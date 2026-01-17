@@ -1,17 +1,13 @@
 @import "tailwindcss";
 
 @theme inline {
-  /* Design Tokens */
   --color-primary: #00d084;
-  --color-secondary: #64748b;
-  --color-accent: #3b82f6;
+  --color-secondary: #0a1628;
+  --color-accent: #00f5a0;
+  --color-border: #1e293b;
 
-  --color-brand-green: #00d084;
-  --color-brand-blue: #3b82f6;
-  --color-brand-dark: #010804;
-
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: #fffff;
+  --color-foreground: #33333;
 
   --font-sans: var(--font-exo-2);
   --font-mono: var(--font-geist-mono);
@@ -22,26 +18,10 @@
 }
 
 :root {
-  /* Base Colors */
-  --background: #ffffff;
-  --foreground: #020617; /* slate-950 */
-
-  /* Theme Colors - Consolidated to Green as Primary for VestPay */
   --primary: #00d084;
-  --primary-foreground: #ffffff;
-  --secondary: #64748b; /* slate-500 */
-  --accent: #3b82f6; /* Use blue as accent */
-
-  /* Keep brand aliases for backward compatibility */
-  --brand-green: #00d084;
-  --brand-blue: #3b82f6;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #020617; /* slate-950 */
-    --foreground: #f8fafc; /* slate-50 */
-  }
+  --primary-foreground: #0a1628;
+  --secondary: #0a1628;
+  --accent: #00f5a0;
 }
 
 body {
@@ -57,7 +37,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom Utilities for Premium UI */
 @utility glass {
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(12px);
@@ -67,7 +46,7 @@ body {
 
 @utility text-gradient {
   background-clip: text;
-  -webkit-backdrop-clip: text;
+  -webkit-background-clip: text;
   color: transparent;
   background-image: linear-gradient(to right, var(--color-primary), var(--color-accent));
 }
@@ -105,15 +84,25 @@ body {
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: rgba(241, 245, 249, 0.5);
   border-radius: 3px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: rgba(203, 213, 225, 0.8);
   border-radius: 3px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #00d084;
+  background: var(--color-primary);
+}
+
+@media (prefers-color-scheme: dark) {
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(30, 41, 59, 0.5);
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(71, 85, 105, 0.8);
+  }
 }
