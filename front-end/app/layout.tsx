@@ -8,7 +8,7 @@ const playfair = Playfair_Display({
   subsets: ["latin"],
   variable: "--font-playfair",
   weight: ["400", "700", "900"],
-  style: ["normal", "italic"]
+  style: ["normal", "italic"],
 });
 
 export const metadata: Metadata = {
@@ -26,7 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${exo2.variable} ${playfair.variable} font-sans`} suppressHydrationWarning>
+      <body className={`${exo2.variable} ${playfair.variable} font-sans `} suppressHydrationWarning>
         <NetworkProvider>{children}</NetworkProvider>
       </body>
     </html>

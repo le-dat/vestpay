@@ -6,9 +6,9 @@ interface TopBarProps {
 
 export const TopBar = ({ email }: TopBarProps) => {
   return (
-    <header className="h-20 flex items-center justify-between px-8 bg-white border-b border-gray-100">
+    <header className="h-20 flex items-center justify-between px-8 shadow">
       <h1 className="text-2xl font-bold text-gray-900">
-        Good Afternoon <span className="text-gray-600 font-medium">{email}</span>
+        Welcome <span className="text-gray-600 font-medium">{email}</span>
       </h1>
 
       <div className="flex items-center gap-4">

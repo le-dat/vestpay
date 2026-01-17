@@ -29,7 +29,7 @@ const Logo = () => {
       <div className="flex items-center gap-2">
         <div className="relative">
           <div className="flex items-baseline gap-[1px]">
-            <span className="text-2xl font-black tracking-tighter text-foreground/95 relative">
+            <span className="text-2xl font-black tracking-tighter text-black relative">
               Vest
               <div className="absolute -bottom-0.5 left-0 w-full h-[2px] bg-primary" />
             </span>

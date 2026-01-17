@@ -12,16 +12,8 @@ const navItems = [
       { label: "Dashboard", icon: LayoutDashboard, href: ROUTES.DASHBOARD },
       { label: "Swap", icon: Coins, href: ROUTES.SWAP },
       { label: "Lending", icon: Coins, href: ROUTES.LENDING },
-      // { label: "Invoices", icon: Receipt, href: ROUTES.INVOICES },
     ],
   },
-  // {
-  //   group: "System",
-  //   items: [
-  //     { label: "Rewards", icon: Trophy, href: ROUTES.REWARDS },
-  //     { label: "Settings", icon: Settings, href: ROUTES.SETTINGS },
-  //   ],
-  // },
 ];
 
 export const DashboardSidebar = () => {
@@ -42,7 +34,7 @@ export const DashboardSidebar = () => {
       <nav className="flex-1 space-y-8">
         {navItems.map((group) => (
           <div key={group.group}>
-            <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4 px-3">
+            <h3 className="text-lg font-semibold text-gray-400 uppercase tracking-wider mb-4 px-3">
               {group.group}
             </h3>
             <div className="space-y-1">
@@ -59,9 +51,9 @@ export const DashboardSidebar = () => {
                     }`}
                   >
                     <item.icon
-                      className={`w-5 h-5 ${isActive ? "text-primary" : "text-gray-400 group-hover:text-gray-600"}`}
+                      className={`w-6 h-6 ${isActive ? "text-primary" : "text-gray-400 group-hover:text-gray-600"}`}
                     />
-                    <span className="font-medium">{item.label}</span>
+                    <span className="font-medium text-2xl">{item.label}</span>
                   </Link>
                 );
               })}
