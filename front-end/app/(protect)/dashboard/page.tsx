@@ -11,19 +11,14 @@ export default function DashboardPage() {
   const [sendModalOpen, setSendModalOpen] = useState(false);
   const [depositModalOpen, setDepositModalOpen] = useState(false);
 
-  const handleDeposit = () => {
-    setDepositModalOpen(true);
-  };
-
-  const handleSend = () => {
-    setSendModalOpen(true);
-  };
-
   return (
     <div className="space-y-8">
       <div className="grid grid-cols-12 gap-6">
         <div className="col-span-12 lg:col-span-8 space-y-6">
-          <BalanceCard onDeposit={handleDeposit} onSend={handleSend} />
+          <BalanceCard
+            onDeposit={() => setDepositModalOpen(true)}
+            onSend={() => setSendModalOpen(true)}
+          />
         </div>
         <div className="col-span-12 lg:col-span-4 space-y-6">
           <div className="bg-white border border-gray-100 rounded-[32px] p-8 shadow-sm">
@@ -35,15 +30,10 @@ export default function DashboardPage() {
       <SendModal
         isOpen={sendModalOpen}
         onClose={() => setSendModalOpen(false)}
-        onSuccess={() => {
-          setSendModalOpen(false);
-        }}
+        onSuccess={() => setSendModalOpen(false)}
       />
 
-      <DepositModal
-        isOpen={depositModalOpen}
-        onClose={() => setDepositModalOpen(false)}
-      />
+      <DepositModal isOpen={depositModalOpen} onClose={() => setDepositModalOpen(false)} />
     </div>
   );
 }

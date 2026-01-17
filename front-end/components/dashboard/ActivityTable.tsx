@@ -1,28 +1,16 @@
 "use client";
 
-import {
-  ChevronDown,
-  RefreshCw,
-  History,
-  ArrowDownLeft,
-  ArrowUpRight,
-  FileCode,
-} from "lucide-react";
+import { ChevronDown, RefreshCw, History } from "lucide-react";
 import { useTransactions } from "@/lib/hooks/useTransactions";
+import { useRefresh } from "@/lib/hooks/useRefresh";
 import TransactionRow from "./TransactionRow";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function ActivityTable() {
   const { transactions, loading, error, hasNextPage, loadMore, refresh } = useTransactions(10);
-  const [refreshing, setRefreshing] = useState(false);
+  const { refreshing, handleRefresh } = useRefresh(refresh);
   const [loadingMore, setLoadingMore] = useState(false);
-
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    await refresh();
-    setTimeout(() => setRefreshing(false), 500);
-  };
 
   const handleLoadMore = async () => {
     setLoadingMore(true);
@@ -50,7 +38,9 @@ export default function ActivityTable() {
             title="Refresh transactions"
           >
             <RefreshCw
-              className={`w-5 h-5 text-gray-400 ${refreshing || loading ? "animate-spin text-primary" : ""}`}
+              className={`w-5 h-5 text-gray-400 ${
+                refreshing || loading ? "animate-spin text-primary" : ""
+              }`}
             />
           </button>
           <button className="flex flex-1 sm:flex-none items-center justify-between gap-2 px-4 py-2.5 bg-gray-50 hover:bg-white border border-gray-100 rounded-2xl text-sm font-medium text-gray-600 transition-all hover:shadow-sm">
@@ -92,7 +82,7 @@ export default function ActivityTable() {
               <EmptyState />
             ) : (
               <AnimatePresence initial={false}>
-                {transactions.map((tx, index) => (
+                {transactions.map((tx) => (
                   <TransactionRow key={tx.digest} transaction={tx} />
                 ))}
               </AnimatePresence>
