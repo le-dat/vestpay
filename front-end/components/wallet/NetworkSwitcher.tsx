@@ -18,8 +18,8 @@ export default function NetworkSwitcher() {
   }, []);
 
   const networks = [
-    { value: "testnet", label: "Testnet", color: "bg-green-500" },
-    { value: "devnet", label: "Devnet", color: "bg-yellow-500" },
+    // { value: "testnet", label: "Testnet", color: "bg-green-500" },
+    // { value: "devnet", label: "Devnet", color: "bg-yellow-500" },
     { value: "mainnet", label: "Mainnet", color: "bg-red-500" },
   ] as const;
 
@@ -55,7 +55,7 @@ export default function NetworkSwitcher() {
           </div>
           <button
             onClick={handleCopy}
-            className="flex-shrink-0 p-2 hover:bg-gray-200 rounded-lg transition-all active:scale-95"
+            className="shrink-0 p-2 hover:bg-gray-200 rounded-lg transition-all active:scale-95"
             title="Copy address"
           >
             {copied ? (
@@ -90,13 +90,6 @@ export default function NetworkSwitcher() {
           </button>
         ))}
       </div>
-      {network === "mainnet" && (
-        <div className="mt-2 p-3 bg-red-50 border border-red-100 rounded-xl">
-          <p className="text-[10px] text-red-600 font-bold uppercase tracking-tight leading-tight">
-            ⚠️ Warning: You are on Mainnet. Real funds at risk!
-          </p>
-        </div>
-      )}
     </div>
   );
 }

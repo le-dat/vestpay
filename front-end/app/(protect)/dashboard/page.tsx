@@ -1,18 +1,22 @@
 "use client";
 
+import { useState } from "react";
 import NetworkSwitcher from "@/components/wallet/NetworkSwitcher";
 import BalanceCard from "@/components/dashboard/BalanceCard";
 import ActivityTable from "@/components/dashboard/ActivityTable";
+import SendModal from "@/components/wallet/SendModal";
+import DepositModal from "@/components/wallet/DepositModal";
 
 export default function DashboardPage() {
+  const [sendModalOpen, setSendModalOpen] = useState(false);
+  const [depositModalOpen, setDepositModalOpen] = useState(false);
+
   const handleDeposit = () => {
-    // TODO: Open deposit modal
-    console.log("Deposit clicked");
+    setDepositModalOpen(true);
   };
 
   const handleSend = () => {
-    // TODO: Open send modal
-    console.log("Send clicked");
+    setSendModalOpen(true);
   };
 
   return (
@@ -36,6 +40,20 @@ export default function DashboardPage() {
 
       {/* Activity Card with real transaction data */}
       <ActivityTable />
+
+      {/* Modals */}
+      <SendModal
+        isOpen={sendModalOpen}
+        onClose={() => setSendModalOpen(false)}
+        onSuccess={() => {
+          setSendModalOpen(false);
+        }}
+      />
+
+      <DepositModal
+        isOpen={depositModalOpen}
+        onClose={() => setDepositModalOpen(false)}
+      />
     </div>
   );
 }

@@ -3,15 +3,11 @@ import { SubTab, SubTabConfig, TabContentProps, LendingPool, ScallopPool } from 
 import { LendingPoolTable } from "./LendingPoolTable";
 import { getCoinMetadata } from "@/lib/constants/defi-pools";
 
-export const LendingTabContent = ({ searchQuery, marketData, loading }: TabContentProps) => {
+export const LendingTabContent = ({ marketData, loading }: TabContentProps) => {
   const [activeSubTab, setActiveSubTab] = useState<SubTab>("lending-pools");
 
-  const subTabs: SubTabConfig[] = [
-    { id: "lending-pools", label: "Lending Pools" },
-    { id: "scoin-pools", label: "sCoin Pools" },
-  ];
+  const subTabs: SubTabConfig[] = [{ id: "lending-pools", label: "Lending Pools" }];
 
-  // Map Scallop pools to LendingPool format
   const scallopPools: LendingPool[] =
     marketData?.pools.map((pool: ScallopPool) => {
       const metadata = getCoinMetadata(pool.symbol);
@@ -20,17 +16,13 @@ export const LendingTabContent = ({ searchQuery, marketData, loading }: TabConte
         icon: metadata.icon,
         badge: metadata.badge,
         price: pool.coinPrice,
-        yourSupply: 0, // Need wallet integration for this
+        yourSupply: 0,
         totalSupply: pool.supplyCoin,
         totalBorrow: pool.borrowCoin,
         utilizationRate: Math.round(pool.utilizationRate * 100),
         apy: Number((pool.supplyApy * 100).toFixed(2)),
       };
     }) || [];
-
-  const filteredPools = scallopPools.filter((pool) =>
-    pool.coin.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
 
   if (loading) {
     return (
@@ -60,13 +52,7 @@ export const LendingTabContent = ({ searchQuery, marketData, loading }: TabConte
         </div>
       </div>
 
-      {activeSubTab === "lending-pools" && <LendingPoolTable pools={filteredPools} />}
-
-      {activeSubTab === "scoin-pools" && (
-        <div className="text-center py-12 text-gray-500">
-          <p>sCoin Pools coming soon...</p>
-        </div>
-      )}
+      {activeSubTab === "lending-pools" && <LendingPoolTable pools={scallopPools} />}
     </>
   );
 };

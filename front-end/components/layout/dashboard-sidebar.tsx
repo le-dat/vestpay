@@ -10,7 +10,8 @@ const navItems = [
     group: "Management",
     items: [
       { label: "Dashboard", icon: LayoutDashboard, href: ROUTES.DASHBOARD },
-      { label: "DeFi", icon: Coins, href: ROUTES.DEFI },
+      { label: "Swap", icon: Coins, href: ROUTES.SWAP },
+      { label: "Lending", icon: Coins, href: ROUTES.LENDING },
       // { label: "Invoices", icon: Receipt, href: ROUTES.INVOICES },
     ],
   },

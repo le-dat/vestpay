@@ -5,7 +5,7 @@ import Image from "next/image";
 
 interface LendingPoolTableProps {
   pools: LendingPool[];
-  type?: "lending" | "borrowing";
+  type?: "lending" 
 }
 
 export const LendingPoolTable = ({ pools, type = "lending" }: LendingPoolTableProps) => {

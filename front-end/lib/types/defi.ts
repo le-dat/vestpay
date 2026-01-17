@@ -63,8 +63,6 @@ export interface SubTabConfig {
 }
 
 export interface TabContentProps {
-  searchQuery: string;
-  apyFilter: string;
   marketData?: ScallopMarketData;
   loading?: boolean;
 }
