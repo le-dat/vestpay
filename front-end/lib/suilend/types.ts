@@ -45,6 +45,15 @@ export interface RouteGroup {
 
 export interface ISwapTransactionResponse {
   transaction: Transaction;
+  // Parameters to rebuild transaction (for React state storage)
+  rebuildParams?: {
+    userAddress: string;
+    tokenInType: string;
+    tokenOutType: string;
+    amountIn: string;
+    slippagePercent: number;
+    rawQuote: StandardizedQuote;
+  };
   quote: {
     provider: string;
     amountOut: number;
