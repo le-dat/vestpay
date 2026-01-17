@@ -19,8 +19,12 @@
     "@suilend/sdk": "^1.1.99",
     "@suilend/sui-fe": "^0.3.50",
     "aftermath-ts-sdk": "^1.3.26",
+    "@types/qrcode.react": "^1.0.5",
+    "framer-motion": "^12.26.2",
     "jose": "^6.1.3",
+    "lucide-react": "^0.562.0",
     "next": "16.1.1",
+    "qrcode.react": "^4.2.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "zod": "^4.3.5"
