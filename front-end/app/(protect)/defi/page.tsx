@@ -1,13 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import { Search, RefreshCw } from "lucide-react";
-import { MainTab, TabConfig } from "@/lib/types/defi";
-import { LendingTabContent } from "@/components/defi/LendingTabContent";
 import { BorrowingTabContent } from "@/components/defi/BorrowingTabContent";
-import { StatCard } from "@/components/defi/StatCard";
+import { LendingTabContent } from "@/components/defi/LendingTabContent";
 import { useScallopMarket } from "@/lib/hooks/useScallopMarket";
-import { ScallopPool } from "@/lib/types/defi";
+import { MainTab, TabConfig } from "@/lib/types/defi";
+import { RefreshCw, Search } from "lucide-react";
+import { useState } from "react";
 
 const MAIN_TABS: TabConfig[] = [
   { id: "lending", label: "LENDING", component: LendingTabContent },
@@ -22,28 +20,8 @@ const DeFiPage = () => {
 
   const ActiveTabComponent = MAIN_TABS.find((tab) => tab.id === activeMainTab)?.component;
 
-  // Calculate average supply APY from active pools
-  const averageSupplyApy = marketData?.pools
-    ? (
-        (marketData.pools.reduce((acc: number, pool: ScallopPool) => acc + pool.supplyApy, 0) /
-          marketData.pools.length) *
-        100
-      ).toFixed(2)
-    : "0";
-
   return (
     <div className="space-y-6">
-      {/* Header Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <StatCard label="Your Supply" value="$0" unit="USD" />
-        <StatCard
-          label="Average Supply APY"
-          value={`${averageSupplyApy}%`}
-          showInfo
-          valueClassName="text-emerald-600"
-        />
-      </div>
-
       {/* Main Content Card */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
         {/* Main Tab Navigation */}

@@ -77,9 +77,6 @@ export const DashboardSidebar = () => {
           <LogOut className="w-5 h-5 text-gray-400 group-hover:text-red-500" />
           <span className="font-medium">Logout</span>
         </button>
-        <div className="pt-4 border-t border-gray-50">
-          <div className="text-[10px] text-gray-400 font-medium px-3 tracking-tight">v0.1.9</div>
-        </div>
       </div>
     </aside>
   );

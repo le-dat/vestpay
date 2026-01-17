@@ -1,6 +1,7 @@
 import { Info } from "lucide-react";
 import { LendingPool } from "@/lib/types/defi";
 import { formatCurrency, formatNumber } from "@/lib/utils/format";
+import Image from "next/image";
 
 interface LendingPoolTableProps {
   pools: LendingPool[];
@@ -8,6 +9,7 @@ interface LendingPoolTableProps {
 }
 
 export const LendingPoolTable = ({ pools, type = "lending" }: LendingPoolTableProps) => {
+  console.log(pools.map(pool => pool.coin));
   return (
     <div className="overflow-x-auto custom-scrollbar">
       <table className="w-full">
@@ -42,9 +44,13 @@ export const LendingPoolTable = ({ pools, type = "lending" }: LendingPoolTablePr
             >
               <td className="py-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-linear-to-br from-primary to-primary/80 flex items-center justify-center text-xl">
-                    {pool.icon}
-                  </div>
+                  <Image
+                    src={pool.icon}
+                    alt={pool.coin}
+                    width={40}
+                    height={40}
+                    className="w-10 h-10 rounded-full"
+                  />
                   <div>
                     <div className="flex items-center gap-2">
                       <span className="font-semibold text-gray-900">{pool.coin}</span>
