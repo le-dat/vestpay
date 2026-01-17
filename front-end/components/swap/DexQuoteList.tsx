@@ -2,13 +2,11 @@
 
 import type { StandardizedQuote } from '@suilend/sdk';
 import { extractRawAmountOut } from '@/lib/suilend/core/quote';
+import type { CetusToken } from '@/lib/suilend/core/tokens';
 
 interface DexQuoteListProps {
   quotes: StandardizedQuote[];
-  tokenOut: {
-    symbol: string;
-    decimals: number;
-  };
+  tokenOut: CetusToken | null;
   selectedQuote: StandardizedQuote | null;
   onSelectQuote: (quote: StandardizedQuote) => void;
   loading: boolean;
@@ -59,6 +57,8 @@ export default function DexQuoteList({
 
         <div className="space-y-3">
           {quotes.map((quote, index) => {
+            if (!tokenOut) return null;
+            
             const rawAmount = extractRawAmountOut(quote);
             const amountOut = rawAmount / Math.pow(10, tokenOut.decimals);
             const isSelected = selectedQuote?.id === quote.id;

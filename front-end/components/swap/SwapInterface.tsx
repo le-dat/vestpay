@@ -8,6 +8,8 @@ import { getSwapQuotes, extractRawAmountOut } from '@/lib/suilend/core/quote';
 import { buildSwapTransactionFromQuote, createTokenObject } from '@/lib/suilend/core/transaction';
 import type { StandardizedQuote } from '@suilend/sdk';
 import type { ISwapTransactionResponse } from '@/lib/suilend';
+import type { CetusToken } from '@/lib/suilend/core/tokens';
+import { fetchCetusTokens } from '@/lib/suilend/core/tokens';
 
 interface SwapInterfaceProps {
   walletInfo: {
@@ -17,26 +19,9 @@ interface SwapInterfaceProps {
   };
 }
 
-const TOKENS = {
-  SUI: {
-    symbol: 'SUI',
-    name: 'Sui',
-    type: '0x2::sui::SUI',
-    decimals: 9,
-    icon: '⚡',
-  },
-  USDC: {
-    symbol: 'USDC',
-    name: 'USD Coin',
-    type: '0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC',
-    decimals: 6,
-    icon: '💵',
-  },
-};
-
 export default function SwapInterface({ walletInfo }: SwapInterfaceProps) {
-  const [tokenIn, setTokenIn] = useState(TOKENS.SUI);
-  const [tokenOut, setTokenOut] = useState(TOKENS.USDC);
+  const [tokenIn, setTokenIn] = useState<CetusToken | null>(null);
+  const [tokenOut, setTokenOut] = useState<CetusToken | null>(null);
   const [amountIn, setAmountIn] = useState('');
   const [slippage, setSlippage] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -45,12 +30,27 @@ export default function SwapInterface({ walletInfo }: SwapInterfaceProps) {
   const [swapData, setSwapData] = useState<ISwapTransactionResponse | null>(null);
   const [error, setError] = useState('');
 
-  // Auto fetch quotes when amount changes
   useEffect(() => {
-    if (amountIn && parseFloat(amountIn) > 0) {
+    loadDefaultTokens();
+  }, []);
+
+  async function loadDefaultTokens() {
+    try {
+      const tokens = await fetchCetusTokens();
+      const sui = tokens.find(t => t.symbol === 'SUI');
+      const usdc = tokens.find(t => t.symbol === 'USDC');
+      if (sui) setTokenIn(sui);
+      if (usdc) setTokenOut(usdc);
+    } catch (error) {
+      console.error('Failed to load default tokens:', error);
+    }
+  }
+
+  useEffect(() => {
+    if (amountIn && parseFloat(amountIn) > 0 && tokenIn && tokenOut) {
       const timer = setTimeout(() => {
         fetchQuotes();
-      }, 500); // Debounce 500ms
+      }, 500);
       return () => clearTimeout(timer);
     } else {
       setQuotes([]);
@@ -58,9 +58,11 @@ export default function SwapInterface({ walletInfo }: SwapInterfaceProps) {
       setSwapData(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [amountIn, tokenIn.type, tokenOut.type]);
+  }, [amountIn, tokenIn?.coinType, tokenOut?.coinType]);
 
   async function fetchQuotes() {
+    if (!tokenIn || !tokenOut) return;
+
     setLoading(true);
     setError('');
     setQuotes([]);
@@ -68,8 +70,8 @@ export default function SwapInterface({ walletInfo }: SwapInterfaceProps) {
     setSwapData(null);
 
     try {
-      const tokenInObj = createTokenObject(tokenIn.type);
-      const tokenOutObj = createTokenObject(tokenOut.type);
+      const tokenInObj = createTokenObject(tokenIn.coinType);
+      const tokenOutObj = createTokenObject(tokenOut.coinType);
       const amount = parseFloat(amountIn) * Math.pow(10, tokenIn.decimals);
 
       const allQuotes = await getSwapQuotes(
@@ -80,7 +82,6 @@ export default function SwapInterface({ walletInfo }: SwapInterfaceProps) {
 
       setQuotes(allQuotes);
       
-      // Auto-select best quote (first one)
       if (allQuotes.length > 0) {
         setSelectedQuote(allQuotes[0]);
       }
@@ -97,13 +98,12 @@ export default function SwapInterface({ walletInfo }: SwapInterfaceProps) {
   }
 
   async function handleBuildTransaction() {
-    if (!selectedQuote) return;
+    if (!selectedQuote || !tokenIn || !tokenOut) return;
 
     setLoading(true);
     setError('');
 
     try {
-      // Check current network
       const currentNetwork = typeof window !== 'undefined' 
         ? localStorage.getItem('sui-network') || 'mainnet'
         : 'mainnet';
@@ -114,8 +114,8 @@ export default function SwapInterface({ walletInfo }: SwapInterfaceProps) {
         return;
       }
 
-      const tokenInObj = createTokenObject(tokenIn.type);
-      const tokenOutObj = createTokenObject(tokenOut.type);
+      const tokenInObj = createTokenObject(tokenIn.coinType);
+      const tokenOutObj = createTokenObject(tokenOut.coinType);
       const amount = parseFloat(amountIn) * Math.pow(10, tokenIn.decimals);
       const slippagePercent = slippage;
 
@@ -123,11 +123,11 @@ export default function SwapInterface({ walletInfo }: SwapInterfaceProps) {
       const { SuiClient } = await import('@mysten/sui/client');
       const client = new SuiClient({ url: 'https://fullnode.mainnet.sui.io' });
       
-      console.log('Checking balance for:', tokenIn.type);
+      console.log('Checking balance for:', tokenIn.coinType);
       
       const balance = await client.getBalance({
         owner: walletInfo.address,
-        coinType: tokenIn.type,
+        coinType: tokenIn.coinType,
       });
 
       const balanceAmount = BigInt(balance.totalBalance);
@@ -179,11 +179,10 @@ export default function SwapInterface({ walletInfo }: SwapInterfaceProps) {
 
       setSwapData({
         transaction: result.transaction,
-        // Save params to rebuild transaction before execution
         rebuildParams: {
           userAddress: walletInfo.address,
-          tokenInType: tokenIn.type,
-          tokenOutType: tokenOut.type,
+          tokenInType: tokenIn.coinType,
+          tokenOutType: tokenOut.coinType,
           amountIn: amount.toString(),
           slippagePercent,
           rawQuote: selectedQuote,
@@ -227,6 +226,8 @@ export default function SwapInterface({ walletInfo }: SwapInterfaceProps) {
             token={tokenIn}
             amount={amountIn}
             onAmountChange={setAmountIn}
+            onTokenChange={setTokenIn}
+            excludeToken={tokenOut}
             disabled={loading}
           />
 
@@ -247,8 +248,10 @@ export default function SwapInterface({ walletInfo }: SwapInterfaceProps) {
           <TokenInput
             label="You receive (estimated)"
             token={tokenOut}
-            amount={selectedQuote ? (extractRawAmountOut(selectedQuote) / Math.pow(10, tokenOut.decimals)).toFixed(6) : ''}
+            amount={selectedQuote && tokenOut ? (extractRawAmountOut(selectedQuote) / Math.pow(10, tokenOut.decimals)).toFixed(6) : ''}
             onAmountChange={() => {}}
+            onTokenChange={setTokenOut}
+            excludeToken={tokenIn}
             disabled={true}
             readOnly={true}
           />
