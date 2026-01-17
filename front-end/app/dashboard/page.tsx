@@ -8,6 +8,11 @@ import TransactionHistory from '@/components/wallet/TransactionHistory';
 import TokenList from '@/components/wallet/TokenList';
 import NetworkSwitcher from '@/components/wallet/NetworkSwitcher';
 import FaucetButton from '@/components/wallet/FaucetButton';
+import ScallopSupply from '@/components/wallet/ScallopSupply';
+import ScallopWithdraw from '@/components/wallet/ScallopWithdraw';
+import ScallopBorrow from '@/components/wallet/ScallopBorrow';
+import ScallopRepay from '@/components/wallet/ScallopRepay';
+import ScallopPosition from '@/components/wallet/ScallopPosition';
 import { getCachedWalletInfo, clearWalletCache } from '@/lib/sui/passkey';
 
 export default function DashboardPage() {
@@ -92,6 +97,21 @@ export default function DashboardPage() {
 
           {/* Right Column */}
           <div className="space-y-6">
+            {/* Scallop Position */}
+            <ScallopPosition />
+
+            {/* Scallop Supply */}
+            <ScallopSupply onSuccess={handleRefresh} />
+
+            {/* Scallop Borrow */}
+            <ScallopBorrow onSuccess={handleRefresh} />
+
+            {/* Scallop Repay */}
+            <ScallopRepay onSuccess={handleRefresh} />
+
+            {/* Scallop Withdraw */}
+            <ScallopWithdraw onSuccess={handleRefresh} />
+
             {/* Send Tokens */}
             <SendTokens onSuccess={handleRefresh} />
 

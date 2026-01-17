@@ -3,15 +3,15 @@ import {
   BrowserPasskeyProvider,
   type BrowserPasswordProviderOptions,
 } from '@mysten/sui/keypairs/passkey';
-import { cacheKeypairInMemory, getCachedKeypairFromMemory } from './keypair-cache';
+import {
+  cacheKeypairInMemory,
+  getCachedKeypairFromMemory,
+  clearKeypairCache,
+} from './keypair-cache';
 
 const RP_NAME = process.env.NEXT_PUBLIC_RP_NAME || 'Passkey Sui Wallet';
 const RP_ID = process.env.NEXT_PUBLIC_RP_ID || 'localhost';
 
-/**
- * Create a new Passkey wallet
- * This will prompt the user to create a new Passkey credential
- */
 export async function createPasskeyWallet(email: string): Promise<{
   keypair: PasskeyKeypair;
   publicKey: string;
@@ -33,10 +33,14 @@ export async function createPasskeyWallet(email: string): Promise<{
   const publicKey = keypair.getPublicKey();
   const address = publicKey.toSuiAddress();
 
-  // Cache the keypair in sessionStorage
+  // Get credential ID from provider for future authentication (if available)
+  const credentialId: string | null = null; // Note: PasskeyKeypair doesn't expose credentialId in current SDK version
+
+  // Cache the keypair in sessionStorage with credential ID
   cacheKeypair(email, {
     publicKey: publicKey.toBase64(),
     address,
+    credentialId,
   });
 
   // Cache keypair in memory for immediate use
@@ -49,18 +53,15 @@ export async function createPasskeyWallet(email: string): Promise<{
   };
 }
 
-/**
- * Recover existing Passkey wallet
- * Uses signAndRecover to derive public key from 2 signatures
- */
 export async function recoverPasskeyWallet(): Promise<{
   keypair: PasskeyKeypair;
   publicKey: string;
   address: string;
 } | null> {
-  // Check if we have cached keypair first
+  // Check if we have cached keypair first (no prompt needed!)
   const cached = getCachedKeypairFromMemory();
   if (cached) {
+    console.log('✅ Using cached keypair - no passkey prompt!');
     const publicKey = cached.getPublicKey();
     return {
       keypair: cached,
@@ -75,11 +76,15 @@ export async function recoverPasskeyWallet(): Promise<{
       rpId: RP_ID,
     } as BrowserPasswordProviderOptions);
 
-    // Sign two different messages to recover public key
+    // Full recovery with 2 signatures (required by Passkey spec)
+    console.log('🔐 Recovering wallet - this requires 2 passkey prompts');
     const message1 = new TextEncoder().encode('Sui Wallet Recovery Message 1');
     const message2 = new TextEncoder().encode('Sui Wallet Recovery Message 2');
 
+    console.log('📝 Prompt 1/2: Signing first recovery message...');
     const possiblePks1 = await PasskeyKeypair.signAndRecover(provider, message1);
+
+    console.log('📝 Prompt 2/2: Signing second recovery message...');
     const possiblePks2 = await PasskeyKeypair.signAndRecover(provider, message2);
 
     // Find common public key
@@ -93,8 +98,18 @@ export async function recoverPasskeyWallet(): Promise<{
     const keypair = new PasskeyKeypair(commonPk.toRawBytes(), provider);
     const address = commonPk.toSuiAddress();
 
-    // Cache for future use
+    // Cache for future use (this prevents future prompts!)
+    console.log('✅ Recovery successful! Caching keypair...');
     cacheKeypairInMemory(keypair);
+
+    // Update session storage
+    const cachedEmail = sessionStorage.getItem('sui_wallet_email');
+    if (cachedEmail) {
+      cacheKeypair(cachedEmail, {
+        publicKey: commonPk.toBase64(),
+        address,
+      });
+    }
 
     return {
       keypair,
@@ -108,12 +123,21 @@ export async function recoverPasskeyWallet(): Promise<{
 }
 
 /**
+ * Public key interface for type safety
+ */
+interface PublicKeyLike {
+  toBase64(): string;
+  toRawBytes(): Uint8Array;
+  toSuiAddress(): string;
+}
+
+/**
  * Find common public key from two sets of possible keys
  */
 function findCommonPublicKey(
-  possiblePks1: any[],
-  possiblePks2: any[]
-): any | null {
+  possiblePks1: PublicKeyLike[],
+  possiblePks2: PublicKeyLike[]
+): PublicKeyLike | null {
   for (const pk1 of possiblePks1) {
     for (const pk2 of possiblePks2) {
       if (pk1.toBase64() === pk2.toBase64()) {
@@ -129,7 +153,7 @@ function findCommonPublicKey(
  */
 export function cacheKeypair(
   email: string,
-  walletInfo: { publicKey: string; address: string }
+  walletInfo: { publicKey: string; address: string; credentialId?: string | null }
 ): void {
   if (typeof window !== 'undefined') {
     sessionStorage.setItem('sui_wallet_email', email);
@@ -144,6 +168,7 @@ export function getCachedWalletInfo(): {
   email: string;
   publicKey: string;
   address: string;
+  credentialId?: string | null;
 } | null {
   if (typeof window === 'undefined') return null;
 
@@ -172,7 +197,6 @@ export function clearWalletCache(): void {
     sessionStorage.removeItem('sui_wallet_info');
   }
   // Also clear in-memory keypair cache
-  const { clearKeypairCache } = require('./keypair-cache');
   clearKeypairCache();
 }
 

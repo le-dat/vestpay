@@ -114,7 +114,7 @@ export default function LoginForm() {
 
         <div className="mt-8 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
           <p className="text-xs text-gray-600 dark:text-gray-400">
-            💡 <strong>Recovery Process:</strong> We'll ask you to sign 2 messages with your Passkey to securely recover your wallet.
+            💡 <strong>Secure Login:</strong> For security, we need to verify your identity twice with your Passkey. After login, you won't be prompted again for 30 seconds!
           </p>
         </div>
       </div>
