@@ -302,10 +302,10 @@ export default function SwapInterface({ walletInfo }: SwapInterfaceProps) {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4">
+    <div className="px-4">
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-6">
         {/* Left Column - Swap Interface */}
-        <div className="space-y-6 max-w-[500px] mx-auto lg:mx-0">
+        <div className="space-y-6 max-w-[540px] mx-auto lg:mx-0">
           {/* Header with Toggle and Utility Icons */}
           <div className="flex items-center justify-between px-1">
             <SwapModeToggle activeMode="Instant" onModeChange={() => { }} />
