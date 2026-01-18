@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import TokenInput from './TokenInput';
-import DexQuoteList from './DexQuoteList';
-import { ExecuteSwapButton } from './ExecuteSwapButton';
-import { SwapModeToggle } from './SwapModeToggle';
-import { getSwapQuotes, extractRawAmountOut } from '@/lib/suilend/core/quote';
-import { buildSwapTransactionFromQuote, createTokenObject } from '@/lib/suilend/core/transaction';
-import type { StandardizedQuote } from '@suilend/sdk';
-import type { ISwapTransactionResponse } from '@/lib/suilend';
-import type { CetusToken } from '@/lib/suilend/core/tokens';
-import { fetchCetusTokens } from '@/lib/suilend/core/tokens';
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import TokenInput from "./TokenInput";
+import DexQuoteList from "./DexQuoteList";
+import { ExecuteSwapButton } from "./ExecuteSwapButton";
+import { SwapModeToggle } from "./SwapModeToggle";
+import { getSwapQuotes, extractRawAmountOut } from "@/lib/suilend/core/quote";
+import { buildSwapTransactionFromQuote, createTokenObject } from "@/lib/suilend/core/transaction";
+import type { StandardizedQuote } from "@suilend/sdk";
+import type { ISwapTransactionResponse } from "@/lib/suilend";
+import type { CetusToken } from "@/lib/suilend/core/tokens";
+import { fetchCetusTokens } from "@/lib/suilend/core/tokens";
 
 interface SwapInterfaceProps {
   walletInfo: {
@@ -24,28 +24,24 @@ interface SwapInterfaceProps {
 export default function SwapInterface({ walletInfo }: SwapInterfaceProps) {
   const [tokenIn, setTokenIn] = useState<CetusToken | null>(null);
   const [tokenOut, setTokenOut] = useState<CetusToken | null>(null);
-  const [amountIn, setAmountIn] = useState('');
-  const [slippage, setSlippage] = useState(1);
+  const [amountIn, setAmountIn] = useState("");
+  const [slippage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [quotes, setQuotes] = useState<StandardizedQuote[]>([]);
   const [selectedQuote, setSelectedQuote] = useState<StandardizedQuote | null>(null);
   const [swapData, setSwapData] = useState<ISwapTransactionResponse | null>(null);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [history, setHistory] = useState<any[]>([]);
-  const [tokenInBalance, setTokenInBalance] = useState<string>('');
-  const [tokenOutBalance, setTokenOutBalance] = useState<string>('');
+  const [tokenInBalance, setTokenInBalance] = useState<string>("");
+  const [tokenOutBalance, setTokenOutBalance] = useState<string>("");
   const [historyLoading, setHistoryLoading] = useState(false);
 
   useEffect(() => {
     if (walletInfo.address) {
-      fetchHistory(); // Initial fetch
-
-      // Auto refresh every 5 seconds
+      fetchHistory();
       const interval = setInterval(() => {
         fetchHistory();
       }, 5000);
-
-      // Cleanup interval on unmount
       return () => clearInterval(interval);
     }
   }, [walletInfo.address]);
@@ -53,13 +49,13 @@ export default function SwapInterface({ walletInfo }: SwapInterfaceProps) {
   async function fetchHistory() {
     try {
       setHistoryLoading(true);
-      const { getTransactionHistory } = await import('@/lib/sui/history');
-      const { SuiClient } = await import('@mysten/sui/client');
-      const client = new SuiClient({ url: 'https://fullnode.mainnet.sui.io' });
+      const { getTransactionHistory } = await import("@/lib/sui/history");
+      const { SuiClient } = await import("@mysten/sui/client");
+      const client = new SuiClient({ url: "https://fullnode.mainnet.sui.io" });
       const res = await getTransactionHistory(client, walletInfo.address, 5);
       setHistory(res.data);
     } catch (err) {
-      console.error('Failed to fetch history:', err);
+      console.error("Failed to fetch history:", err);
     } finally {
       setHistoryLoading(false);
     }
@@ -67,32 +63,26 @@ export default function SwapInterface({ walletInfo }: SwapInterfaceProps) {
 
   async function fetchTokenBalance(coinType: string): Promise<string> {
     try {
-      const { SuiClient } = await import('@mysten/sui/client');
-      const client = new SuiClient({ url: 'https://fullnode.mainnet.sui.io' });
-
+      const { SuiClient } = await import("@mysten/sui/client");
+      const client = new SuiClient({ url: "https://fullnode.mainnet.sui.io" });
       const balance = await client.getBalance({
         owner: walletInfo.address,
         coinType: coinType,
       });
-
       return balance.totalBalance;
     } catch (err) {
-      console.error('Failed to fetch balance:', err);
-      return '0';
+      return "0";
     }
   }
 
   async function updateBalances() {
     if (!tokenIn || !tokenOut) return;
-
     const [inBalance, outBalance] = await Promise.all([
       fetchTokenBalance(tokenIn.coinType),
       fetchTokenBalance(tokenOut.coinType),
     ]);
-
     const inBalanceFormatted = (Number(inBalance) / Math.pow(10, tokenIn.decimals)).toFixed(6);
     const outBalanceFormatted = (Number(outBalance) / Math.pow(10, tokenOut.decimals)).toFixed(6);
-
     setTokenInBalance(inBalanceFormatted);
     setTokenOutBalance(outBalanceFormatted);
   }
@@ -110,12 +100,12 @@ export default function SwapInterface({ walletInfo }: SwapInterfaceProps) {
   async function loadDefaultTokens() {
     try {
       const tokens = await fetchCetusTokens();
-      const sui = tokens.find(t => t.symbol === 'SUI');
-      const usdc = tokens.find(t => t.symbol === 'USDC');
+      const sui = tokens.find((t) => t.symbol === "SUI");
+      const usdc = tokens.find((t) => t.symbol === "USDC");
       if (sui) setTokenIn(sui);
       if (usdc) setTokenOut(usdc);
     } catch (error) {
-      console.error('Failed to load default tokens:', error);
+      console.error("Failed to load default tokens:", error);
     }
   }
 
@@ -130,41 +120,29 @@ export default function SwapInterface({ walletInfo }: SwapInterfaceProps) {
       setSelectedQuote(null);
       setSwapData(null);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [amountIn, tokenIn?.coinType, tokenOut?.coinType]);
 
   async function fetchQuotes() {
     if (!tokenIn || !tokenOut) return;
-
     setLoading(true);
-    setError('');
+    setError("");
     setQuotes([]);
     setSelectedQuote(null);
     setSwapData(null);
-
     try {
       const tokenInObj = createTokenObject(tokenIn.coinType);
       const tokenOutObj = createTokenObject(tokenOut.coinType);
       const amount = parseFloat(amountIn) * Math.pow(10, tokenIn.decimals);
-
-      const allQuotes = await getSwapQuotes(
-        tokenInObj,
-        tokenOutObj,
-        amount.toString()
-      );
-
+      const allQuotes = await getSwapQuotes(tokenInObj, tokenOutObj, amount.toString());
       setQuotes(allQuotes);
-
       if (allQuotes.length > 0) {
         setSelectedQuote(allQuotes[0]);
       } else {
-        // Show helpful message instead of error
-        setError('No routes available for this pair. Try a different amount or token pair.');
+        setError("No routes available for this pair.");
       }
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : 'Failed to get quotes';
-      // Don't show timeout errors to user
-      if (!errorMsg.includes('timeout') && !errorMsg.includes('1500ms')) {
+      const errorMsg = err instanceof Error ? err.message : "Failed to get quotes";
+      if (!errorMsg.includes("timeout") && !errorMsg.includes("1500ms")) {
         setError(errorMsg);
       }
     } finally {
@@ -173,57 +151,41 @@ export default function SwapInterface({ walletInfo }: SwapInterfaceProps) {
   }
 
   async function handleSelectQuote(quote: StandardizedQuote) {
-    // Just select the quote, don't build transaction yet
     setSelectedQuote(quote);
   }
 
   async function handleBuildTransaction() {
     if (!selectedQuote || !tokenIn || !tokenOut) return;
-
     setLoading(true);
-    setError('');
-
+    setError("");
     try {
-      const currentNetwork = typeof window !== 'undefined'
-        ? localStorage.getItem('sui-network') || 'mainnet'
-        : 'mainnet';
-
-      if (currentNetwork !== 'mainnet') {
-        setError('Swap is only available on Mainnet. Please switch network first.');
+      const currentNetwork =
+        typeof window !== "undefined"
+          ? localStorage.getItem("sui-network") || "mainnet"
+          : "mainnet";
+      if (currentNetwork !== "mainnet") {
+        setError("Swap is only available on Mainnet.");
         setLoading(false);
         return;
       }
-
       const tokenInObj = createTokenObject(tokenIn.coinType);
       const tokenOutObj = createTokenObject(tokenOut.coinType);
       const amount = parseFloat(amountIn) * Math.pow(10, tokenIn.decimals);
       const slippagePercent = slippage;
-
-      // Fetch user's balance for the input token
-      const { SuiClient } = await import('@mysten/sui/client');
-      const client = new SuiClient({ url: 'https://fullnode.mainnet.sui.io' });
-
-      console.log('Checking balance for:', tokenIn.coinType);
-
+      const { SuiClient } = await import("@mysten/sui/client");
+      const client = new SuiClient({ url: "https://fullnode.mainnet.sui.io" });
       const balance = await client.getBalance({
         owner: walletInfo.address,
         coinType: tokenIn.coinType,
       });
-
       const balanceAmount = BigInt(balance.totalBalance);
       const requiredAmount = BigInt(Math.floor(amount));
 
-      console.log('Balance:', balanceAmount.toString(), 'Required:', requiredAmount.toString());
-
       if (balanceAmount < requiredAmount) {
-        setError(`Insufficient ${tokenIn.symbol} balance. You have ${(Number(balanceAmount) / Math.pow(10, tokenIn.decimals)).toFixed(6)} ${tokenIn.symbol}`);
+        setError(`Insufficient ${tokenIn.symbol} balance.`);
         setLoading(false);
         return;
       }
-
-      console.log('Building swap transaction with coin selection');
-
-      // Build transaction with automatic coin selection from user's wallet
       const result = await buildSwapTransactionFromQuote(
         walletInfo.address,
         tokenInObj,
@@ -231,29 +193,16 @@ export default function SwapInterface({ walletInfo }: SwapInterfaceProps) {
         amount.toString(),
         slippagePercent,
         selectedQuote,
-        undefined  // Will trigger automatic coin selection
+        undefined,
       );
-
-      console.log('Transaction built successfully:', {
-        estimatedAmountOut: result.estimatedAmountOut,
-        quote: selectedQuote.provider
-      });
-
       const minAmountOut = Math.floor(result.estimatedAmountOut * (1 - slippagePercent / 100));
-
-      const routes = selectedQuote.routes.map(route => ({
+      const routes = selectedQuote.routes.map((route) => ({
         percent: route.percent.toNumber(),
-        path: route.path.map(step => ({
+        path: route.path.map((step) => ({
           provider: step.provider,
           poolId: step.poolId,
-          from: {
-            coinType: step.in.coinType,
-            amount: step.in.amount.toString(),
-          },
-          to: {
-            coinType: step.out.coinType,
-            amount: step.out.amount.toString(),
-          },
+          from: { coinType: step.in.coinType, amount: step.in.amount.toString() },
+          to: { coinType: step.out.coinType, amount: step.out.amount.toString() },
         })),
       }));
 
@@ -271,7 +220,7 @@ export default function SwapInterface({ walletInfo }: SwapInterfaceProps) {
           provider: selectedQuote.provider,
           amountOut: result.estimatedAmountOut,
           amountOutFormatted: `${(result.estimatedAmountOut / Math.pow(10, tokenOut.decimals)).toFixed(6)} ${tokenOut.symbol}`,
-          exchangeRate: result.estimatedAmountOut / (amount),
+          exchangeRate: result.estimatedAmountOut / amount,
           routes,
         },
         slippage: {
@@ -281,7 +230,7 @@ export default function SwapInterface({ walletInfo }: SwapInterfaceProps) {
         },
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to build transaction');
+      setError(err instanceof Error ? err.message : "Failed to build transaction");
     } finally {
       setLoading(false);
     }
@@ -302,126 +251,155 @@ export default function SwapInterface({ walletInfo }: SwapInterfaceProps) {
   }
 
   return (
-    <div className="px-4">
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-6">
+    <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-8 items-start">
         {/* Left Column - Swap Interface */}
-        <div className="space-y-6 max-w-[540px] mx-auto lg:mx-0">
-          {/* Header with Toggle and Utility Icons */}
-          <div className="flex items-center justify-between px-1">
-            <SwapModeToggle activeMode="Instant" onModeChange={() => { }} />
-
+        <div className="space-y-6">
+          <div className="flex items-center justify-between px-2">
+            <SwapModeToggle activeMode="Instant" onModeChange={() => {}} />
             <div className="flex items-center gap-2">
-              <button className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-white/10 text-[#00d084] rounded-full text-[12px] font-black border border-gray-100 dark:border-white/10 shadow-sm hover:bg-gray-50 transition-all">
-                <div className="w-5 h-5 flex items-center justify-center bg-[#00d084]/10 rounded-full">
-                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-                  </svg>
-                </div>
-                Prime
-                <svg className="w-3.5 h-3.5 text-[#94a3b8]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="3">
-                  <path d="M4 4h16m-8 8h8m-8 8h8" />
-                </svg>
-              </button>
-              <button className="p-2 text-[#94a3b8] hover:text-[#111827] hover:bg-white rounded-xl shadow-sm transition-all">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
-                  <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                </svg>
-              </button>
-              <button
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={fetchQuotes}
                 disabled={loading}
-                className="p-2 text-[#94a3b8] hover:text-[#111827] hover:bg-white rounded-xl shadow-sm transition-all disabled:opacity-50"
+                className="p-2.5 bg-white dark:bg-white/5 text-[#94a3b8] hover:text-[#00d084] rounded-xl border border-gray-100 dark:border-white/10 transition-all shadow-sm group"
               >
-                <svg className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+                <svg
+                  className={`w-5 h-5 ${loading ? "animate-spin" : "group-hover:rotate-180"} transition-transform duration-500`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  strokeWidth="2.5"
+                >
                   <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
-              </button>
+              </motion.button>
             </div>
           </div>
 
-          {/* Main Swap Interface */}
-          <div className="relative pt-2">
-            <div className="space-y-2">
-              {/* Token Input - Sell */}
-              <TokenInput
-                label="Sell"
-                token={tokenIn}
-                amount={amountIn}
-                onAmountChange={setAmountIn}
-                onTokenChange={setTokenIn}
-                excludeToken={tokenOut}
+          <div className="relative space-y-3">
+            <TokenInput
+              label="Sell"
+              token={tokenIn}
+              amount={amountIn}
+              onAmountChange={setAmountIn}
+              onTokenChange={setTokenIn}
+              excludeToken={tokenOut}
+              disabled={loading}
+              balance={tokenInBalance}
+              onMaxClick={handleMaxClick}
+            />
+
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
+              <motion.button
+                whileHover={{ scale: 1.15, rotate: 180 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={handleFlipTokens}
                 disabled={loading}
-                balance={tokenInBalance}
-                onMaxClick={handleMaxClick}
-              />
-
-              {/* Flip Button - Central Overlay */}
-              <div className="absolute left-1/2 top-[46.5%] -translate-x-1/2 -translate-y-1/2 z-20">
-                <button
-                  onClick={handleFlipTokens}
-                  disabled={loading}
-                  className="bg-[#111827] text-white rounded-[14px] p-3 shadow-2xl shadow-black/20 border-[5px] border-white dark:border-[#111827] transition-all transform hover:scale-110 active:scale-95 disabled:opacity-50 group overflow-hidden"
+                className="bg-[#111827] text-white p-3.5 rounded-2xl shadow-2xl shadow-[#00d084]/20 border-4 border-white dark:border-[#0b0f19] transition-all disabled:opacity-50 group"
+              >
+                <svg
+                  className="w-6 h-6 text-[#00d084] group-hover:scale-110 transition-transform"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  strokeWidth="3"
                 >
-                  <svg className="w-5 h-5 group-hover:rotate-180 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="3">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                  </svg>
-                </button>
-              </div>
-
-              {/* Token Input - Buy */}
-              <TokenInput
-                label="Buy"
-                token={tokenOut}
-                amount={selectedQuote && tokenOut ? (extractRawAmountOut(selectedQuote) / Math.pow(10, tokenOut.decimals)).toFixed(6) : ''}
-                onAmountChange={() => { }}
-                onTokenChange={setTokenOut}
-                excludeToken={tokenIn}
-                disabled={true}
-                readOnly={true}
-                balance={tokenOutBalance}
-              />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"
+                  />
+                </svg>
+              </motion.button>
             </div>
+
+            <TokenInput
+              label="Buy"
+              token={tokenOut}
+              amount={
+                selectedQuote && tokenOut
+                  ? (extractRawAmountOut(selectedQuote) / Math.pow(10, tokenOut.decimals)).toFixed(
+                      6,
+                    )
+                  : ""
+              }
+              onAmountChange={() => {}}
+              onTokenChange={setTokenOut}
+              excludeToken={tokenIn}
+              disabled={true}
+              readOnly={true}
+              balance={tokenOutBalance}
+            />
           </div>
 
-          {/* Exchange Rate Info */}
-          <div className="pt-2">
-            {tokenIn && tokenOut && selectedQuote && amountIn && parseFloat(amountIn) > 0 && (
-              <div className="flex items-center justify-between px-2 text-[14px] font-bold text-[#94a3b8]">
-                <div className="flex items-center gap-2 cursor-pointer hover:text-[#111827] transition-all group">
-                  <span>1 {tokenIn.symbol} ≈ {(extractRawAmountOut(selectedQuote) / Math.pow(10, tokenOut.decimals) / parseFloat(amountIn)).toFixed(6)} {tokenOut.symbol}</span>
-                  <svg className="w-4 h-4 group-hover:rotate-180 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="3">
-                    <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                  </svg>
-                </div>
+          {tokenIn && tokenOut && selectedQuote && amountIn && parseFloat(amountIn) > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex items-center justify-between px-5 py-4 bg-white/50 dark:bg-white/5 backdrop-blur-sm rounded-[24px] border border-gray-100 dark:border-white/10 shadow-sm"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-1.5 h-1.5 bg-[#00d084] rounded-full animate-pulse" />
+                <span className="text-[13px] font-black text-[#111827] dark:text-white uppercase tracking-tight">
+                  1 {tokenIn.symbol} ={" "}
+                  {(
+                    extractRawAmountOut(selectedQuote) /
+                    Math.pow(10, tokenOut.decimals) /
+                    parseFloat(amountIn)
+                  ).toFixed(6)}{" "}
+                  {tokenOut.symbol}
+                </span>
               </div>
-            )}
-          </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-black text-[#94a3b8] uppercase tracking-wider">
+                  Live Rate
+                </span>
+                <span className="text-[10px] font-black text-[#00d084] bg-[#00d084]/10 px-2 py-0.5 rounded-full uppercase">
+                  Best
+                </span>
+              </div>
+            </motion.div>
+          )}
 
-          {/* Main Action Button */}
-          <div className="pt-4">
+          <div className="pt-2">
             {!walletInfo.address ? (
-              <button className="w-full py-6 bg-[#00d084] hover:bg-[#00c07a] text-white text-[22px] font-black rounded-full shadow-xl shadow-[#00d084]/20 transition-all transform hover:scale-[1.01] active:scale-[0.99] tracking-tight uppercase">
+              <button className="w-full py-6 bg-[#00d084] text-white text-[20px] font-black rounded-[28px] shadow-xl shadow-[#00d084]/20 hover:scale-[1.02] active:scale-[0.98] transition-all uppercase tracking-tight">
                 Connect Wallet
               </button>
             ) : error ? (
-              <button className="w-full py-5 bg-gray-100 text-[#64748b] text-[18px] font-black rounded-full cursor-not-allowed">
+              <div className="w-full p-6 bg-red-50 dark:bg-red-500/5 border-2 border-red-100 dark:border-red-500/10 text-red-500 text-[14px] font-black rounded-[28px] text-center uppercase tracking-tight">
                 {error}
-              </button>
+              </div>
             ) : quotes.length > 0 && !swapData ? (
-              <button
+              <motion.button
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
                 onClick={handleBuildTransaction}
                 disabled={loading}
-                className="w-full py-6 bg-[#00d084] hover:bg-[#00c07a] text-white text-[18px] font-black rounded-full shadow-xl shadow-[#00d084]/20 transition-all transform hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-3 tracking-tight uppercase"
+                className="group relative w-full py-7 bg-gradient-to-r from-[#00d084] to-[#00a569] text-white text-[19px] font-black rounded-[28px] shadow-2xl shadow-[#00d084]/30 overflow-hidden"
               >
-                {loading ? (
-                  <svg className="animate-spin h-7 w-7 text-white" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                ) : (
-                  `Swap with ${selectedQuote?.provider}`
-                )}
-              </button>
+                <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="relative flex items-center justify-center gap-4 uppercase tracking-[0.05em]">
+                  {loading ? (
+                    <div className="w-7 h-7 border-4 border-white/20 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    <>
+                      Preview Swap
+                      <svg
+                        className="w-5 h-5 group-hover:translate-x-1 transition-transform"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        strokeWidth="3"
+                      >
+                        <path d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                      </svg>
+                    </>
+                  )}
+                </div>
+              </motion.button>
             ) : swapData ? (
               <ExecuteSwapButton
                 swapData={swapData}
@@ -429,8 +407,9 @@ export default function SwapInterface({ walletInfo }: SwapInterfaceProps) {
                 onSuccess={() => {
                   setSwapData(null);
                   setSelectedQuote(null);
-                  setAmountIn('');
-                  updateBalances(); // Refresh balances after successful swap
+                  setAmountIn("");
+                  updateBalances();
+                  fetchHistory();
                 }}
                 onBack={() => {
                   setSwapData(null);
@@ -439,125 +418,151 @@ export default function SwapInterface({ walletInfo }: SwapInterfaceProps) {
               />
             ) : (
               <button
-                disabled={!amountIn || loading}
-                className="w-full py-6 bg-gray-100 text-[#94a3b8] text-[16px] font-black rounded-full disabled:opacity-50 uppercase tracking-tight"
+                disabled
+                className="w-full py-6 bg-gray-50 dark:bg-white/5 text-[#94a3b8] text-[16px] font-black rounded-[28px] uppercase tracking-widest border border-gray-100 dark:border-white/5 transition-all"
               >
-                Enter Amount
+                {loading ? "Calculating Routes..." : amountIn ? "Searching..." : "Enter Amount"}
               </button>
             )}
           </div>
-
         </div>
 
         {/* Right Column - Quotes & History */}
-        <div className="space-y-6 overflow-hidden">
-          {/* Quotes & Routing Section */}
-          <AnimatePresence>
-            {quotes.length > 0 && (
-              <motion.div
-                key="quotes-section"
-                initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -20, scale: 0.95 }}
-                transition={{
-                  duration: 0.4,
-                  ease: [0.25, 0.46, 0.45, 0.94],
-                }}
-                className="space-y-4"
-              >
-                <div className="flex items-center justify-between px-2">
-                  <div className="flex items-center gap-3">
-                    <svg className="w-6 h-6 text-[#00d084] rotate-45" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                      <path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                    </svg>
-                    <div className="flex items-center gap-2">
-                      <div className="flex items-center gap-1.5 p-2 px-3 bg-gradient-to-r from-[#00d084] to-[#00a569] text-white rounded-full shadow-md">
-                        <span className="text-[12px] font-black">{quotes.length}</span>
-                        <span className="text-[10px]">•</span>
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="3">
-                          <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                        </svg>
-                        <span className="text-[11px] font-bold text-white/90 uppercase tracking-tight">Best Routes</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+        <div className="space-y-6">
+          <DexQuoteList
+            quotes={quotes}
+            tokenOut={tokenOut}
+            selectedQuote={selectedQuote}
+            onSelectQuote={handleSelectQuote}
+            loading={loading}
+          />
 
-                <DexQuoteList
-                  quotes={quotes}
-                  tokenOut={tokenOut}
-                  selectedQuote={selectedQuote}
-                  onSelectQuote={handleSelectQuote}
-                  loading={loading}
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* History Section */}
-          <AnimatePresence>
-            {history.length > 0 && (
-              <motion.div
-                key="history-section"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3, delay: 0.2 }}
-                className="space-y-4"
-              >
-                <div className="flex items-center justify-between px-2">
-                  <div className="flex items-center gap-2">
-                    <svg className="w-5 h-5 text-[#94a3b8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                      <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span className="text-[15px] font-black text-[#111827] dark:text-white">Swap History</span>
-                  </div>
-                  <button
-                    onClick={fetchHistory}
-                    disabled={historyLoading}
-                    className="flex items-center gap-1.5 text-[12px] font-bold text-[#94a3b8] hover:text-[#00d084] transition-colors disabled:opacity-50"
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="bg-white dark:bg-white/5 rounded-[32px] border border-gray-100 dark:border-white/10 p-7 flex flex-col gap-6 shadow-sm"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-[#00d084]/10 flex items-center justify-center border border-[#00d084]/20">
+                  <svg
+                    className="w-5 h-5 text-[#00d084]"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    strokeWidth="2.5"
                   >
-                    <svg
-                      className={`w-3.5 h-3.5 ${historyLoading ? 'animate-spin' : ''}`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      strokeWidth="2.5"
-                    >
-                      <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                    {historyLoading ? 'Refreshing...' : 'Refresh'}
-                  </button>
+                    <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
                 </div>
+                <div>
+                  <span className="text-[16px] font-black text-[#111827] dark:text-white uppercase tracking-tight block">
+                    Activity History
+                  </span>
+                  <span className="text-[11px] font-bold text-[#94a3b8] uppercase tracking-wider">
+                    Syncing Live
+                  </span>
+                </div>
+              </div>
+              <button
+                onClick={fetchHistory}
+                disabled={historyLoading}
+                className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-xl transition-all"
+              >
+                <svg
+                  className={`w-4 h-4 text-[#94a3b8] ${historyLoading ? "animate-spin" : ""}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  strokeWidth="3"
+                >
+                  <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </button>
+            </div>
 
-                <div className="space-y-2">
-                  {history.map((tx, idx) => (
-                    <div key={idx} className="bg-white dark:bg-white/5 p-4 rounded-2xl border-2 border-gray-50 dark:border-white/5 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-white/10 flex items-center justify-center">
-                          <svg className="w-4 h-4 text-[#94a3b8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                          </svg>
-                        </div>
-                        <div>
-                          <div className="text-[14px] font-black text-[#111827] dark:text-white">Swap Transaction</div>
-                          <div className="text-[12px] font-bold text-[#94a3b8]">{new Date(Number(tx.timestampMs)).toLocaleDateString()}</div>
-                        </div>
-                      </div>
-                      <a
-                        href={`https://suiscan.xyz/mainnet/tx/${tx.digest}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[#00d084] hover:underline text-[12px] font-black"
-                      >
-                        View
-                      </a>
-                    </div>
-                  ))}
+            <div className="space-y-3 relative">
+              {historyLoading && !history.length && (
+                <div className="absolute inset-0 flex items-center justify-center bg-white/50 dark:bg-black/20 backdrop-blur-[1px] z-10 rounded-[20px]">
+                  <div className="w-8 h-8 border-3 border-[#00d084]/20 border-t-[#00d084] rounded-full animate-spin" />
                 </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+              )}
+
+              {history.length > 0
+                ? history.map((tx, idx) => (
+                    <motion.div
+                      key={idx}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: idx * 0.05 }}
+                      className="group bg-gray-50/50 dark:bg-white/[0.02] p-4 rounded-[22px] border border-gray-100 dark:border-white/5 hover:border-[#00d084]/30 hover:shadow-lg hover:shadow-[#00d084]/5 transition-all"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className="w-11 h-11 rounded-2xl bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 flex items-center justify-center shadow-sm">
+                            <svg
+                              className="w-5 h-5 text-[#00d084] group-hover:scale-110 transition-transform"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                              strokeWidth="2.5"
+                            >
+                              <path d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                            </svg>
+                          </div>
+                          <div>
+                            <div className="text-[14px] font-black text-[#111827] dark:text-white uppercase leading-none">
+                              Swap Transaction
+                            </div>
+                            <div className="flex items-center gap-2 mt-1.5">
+                              <span className="text-[11px] font-black text-[#94a3b8] uppercase tracking-wider">
+                                {new Date(Number(tx.timestampMs)).toLocaleDateString()}
+                              </span>
+                              <div className="w-1 h-1 bg-gray-300 dark:bg-white/20 rounded-full" />
+                              <span className="text-[11px] font-black text-[#00d084] uppercase tracking-wider">
+                                Success
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <a
+                          href={`https://suiscan.xyz/mainnet/tx/${tx.digest}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-9 h-9 flex items-center justify-center rounded-xl bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 text-[#94a3b8] hover:text-[#00d084] hover:border-[#00d084]/50 transition-all shadow-sm"
+                        >
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            strokeWidth="3"
+                          >
+                            <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          </svg>
+                        </a>
+                      </div>
+                    </motion.div>
+                  ))
+                : !historyLoading && (
+                    <div className="py-12 bg-gray-50/50 dark:bg-white/5 rounded-[24px] border border-dashed border-gray-200 dark:border-white/10 text-center">
+                      <div className="w-14 h-14 bg-white dark:bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-gray-100 dark:border-white/10 shadow-sm">
+                        <svg
+                          className="w-7 h-7 text-[#94a3b8]"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" strokeWidth="2" />
+                        </svg>
+                      </div>
+                      <span className="text-[13px] font-black text-[#94a3b8] uppercase tracking-[0.1em]">
+                        No recent transactions
+                      </span>
+                    </div>
+                  )}
+            </div>
+          </motion.div>
         </div>
       </div>
     </div>

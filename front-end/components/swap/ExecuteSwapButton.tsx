@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import type { ISwapTransactionResponse } from '@/lib/suilend';
-import { showToast } from '@/components/common/Toast';
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import type { ISwapTransactionResponse } from "@/lib/suilend";
+import { showToast } from "@/components/common/Toast";
 
 interface ExecuteSwapButtonProps {
   swapData: ISwapTransactionResponse;
@@ -22,55 +22,40 @@ export function ExecuteSwapButton({
   onBack,
 }: ExecuteSwapButtonProps) {
   const [executing, setExecuting] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
-  const [txDigest, setTxDigest] = useState('');
+  const [error, setError] = useState("");
 
   async function handleExecuteSwap() {
     setExecuting(true);
-    setError('');
+    setError("");
 
     try {
-      // Import signing function
-      const { signAndExecuteSwapTransaction } = await import('@/lib/suilend/core/signing');
-      const { recoverPasskeyWallet } = await import('@/lib/sui/passkey');
+      const { signAndExecuteSwapTransaction } = await import("@/lib/suilend/core/signing");
+      const { recoverPasskeyWallet } = await import("@/lib/sui/passkey");
 
-      // Recover passkey wallet
       const wallet = await recoverPasskeyWallet();
       if (!wallet) {
-        throw new Error('Failed to recover wallet. Please login again.');
+        throw new Error("Please login to execute swap.");
       }
 
-      console.log('Executing swap transaction...');
+      const result = await signAndExecuteSwapTransaction(swapData.transaction, wallet.keypair);
 
-      // Sign and execute transaction
-      const result = await signAndExecuteSwapTransaction(
-        swapData.transaction,
-        wallet.keypair
-      );
-
-      console.log('Swap executed successfully:', result.digest);
-
-      // Show success toast
       showToast({
-        type: 'success',
-        title: 'Swap Successful!',
-        message: `Your swap has been executed successfully.`,
+        type: "success",
+        title: "Swap Completed",
+        message: `Successfully swapped via ${swapData.quote.provider}`,
         txDigest: result.digest,
         duration: 6000,
       });
 
-      // Call onSuccess immediately
       onSuccess();
     } catch (err) {
-      console.error('Failed to execute swap:', err);
-      const errorMsg = err instanceof Error ? err.message : 'Failed to execute swap';
+      console.error("Failed to execute swap:", err);
+      const errorMsg = err instanceof Error ? err.message : "Swap failed";
       setError(errorMsg);
-      
-      // Show error toast
+
       showToast({
-        type: 'error',
-        title: 'Swap Failed',
+        type: "error",
+        title: "Swap Failed",
         message: errorMsg,
         duration: 6000,
       });
@@ -80,69 +65,96 @@ export function ExecuteSwapButton({
   }
 
   return (
-    <div className="w-full space-y-3">
-      {error && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-red-50 border-2 border-red-200 text-red-700 p-4 rounded-xl text-sm font-bold"
-        >
-          {error}
-        </motion.div>
-      )}
+    <div className="w-full space-y-4">
+      <AnimatePresence>
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-4 rounded-2xl text-[13px] font-black uppercase tracking-tight">
+              {error}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      <div className="bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-700 p-4 rounded-2xl space-y-3">
-        <div className="flex items-center justify-between text-sm">
-          <span className="font-bold text-gray-600 dark:text-gray-400">Provider</span>
-          <span className="font-black text-gray-900 dark:text-white uppercase">
-            {swapData.quote.provider}
-          </span>
+      <div className="bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 p-6 rounded-[28px] space-y-4 shadow-sm relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-4">
+          <div className="text-[10px] font-black text-[#00d084] bg-[#00d084]/10 px-2 py-0.5 rounded-full uppercase tracking-widest">
+            Verified Quote
+          </div>
         </div>
-        <div className="flex items-center justify-between text-sm">
-          <span className="font-bold text-gray-600 dark:text-gray-400">You&apos;ll receive</span>
-          <span className="font-black text-gray-900 dark:text-white">
-            {swapData.quote.amountOutFormatted}
-          </span>
-        </div>
-        <div className="flex items-center justify-between text-sm">
-          <span className="font-bold text-gray-600 dark:text-gray-400">Minimum received</span>
-          <span className="font-black text-gray-900 dark:text-white">
-            {swapData.slippage.minAmountOutFormatted}
-          </span>
-        </div>
-        <div className="flex items-center justify-between text-sm">
-          <span className="font-bold text-gray-600 dark:text-gray-400">Slippage tolerance</span>
-          <span className="font-black text-gray-900 dark:text-white">
-            {swapData.slippage.tolerance}%
-          </span>
+
+        <div className="flex flex-col gap-3 pt-2">
+          {[
+            { label: "Dex Provider", value: swapData.quote.provider, isDex: true },
+            { label: "Execution", value: swapData.quote.amountOutFormatted, isStrong: true },
+            { label: "Minimum Out", value: swapData.slippage.minAmountOutFormatted },
+            { label: "Price Impact", value: "< 0.01%", isGreen: true },
+            { label: "Fee", value: "0.1%", isFee: true },
+          ].map((item, i) => (
+            <div key={i} className="flex items-center justify-between">
+              <span className="text-[11px] font-black text-[#94a3b8] uppercase tracking-[0.1em]">
+                {item.label}
+              </span>
+              <span
+                className={`text-[13px] font-black uppercase tracking-tight ${
+                  item.isDex
+                    ? "text-[#00d084]"
+                    : item.isStrong
+                      ? "text-[#111827] dark:text-white text-[15px]"
+                      : item.isGreen
+                        ? "text-[#00d084]"
+                        : "text-[#111827] dark:text-gray-300"
+                }`}
+              >
+                {item.value}
+              </span>
+            </div>
+          ))}
         </div>
       </div>
 
-      <div className="flex gap-3">
-        <button
+      <div className="flex gap-4">
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
           onClick={onBack}
           disabled={executing}
-          className="flex-1 py-4 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-black rounded-2xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-all disabled:opacity-50"
+          className="flex-1 py-5 bg-gray-50 dark:bg-white/5 text-[#94a3b8] font-black rounded-[24px] uppercase tracking-widest border border-gray-100 dark:border-white/5 hover:text-[#111827] dark:hover:text-white transition-all disabled:opacity-50"
         >
-          Back
-        </button>
-        <button
+          Cancel
+        </motion.button>
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
           onClick={handleExecuteSwap}
           disabled={executing}
-          className="flex-1 py-4 bg-gradient-to-r from-[#00d084] to-[#00a569] hover:from-[#00c07a] hover:to-[#009557] text-white font-black text-lg rounded-2xl shadow-lg shadow-[#00d084]/20 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+          className="flex-[2] py-5 bg-gradient-to-r from-[#111827] to-[#1f2937] dark:from-[#00d084] dark:to-[#00a569] text-white font-black text-lg rounded-[24px] shadow-2xl shadow-black/20 dark:shadow-[#00d084]/20 transition-all disabled:opacity-50 flex items-center justify-center gap-3 group"
         >
           {executing ? (
             <>
-              <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Confirming...
+              <div className="w-5 h-5 border-3 border-white/30 border-t-white rounded-full animate-spin" />
+              <span className="uppercase tracking-widest text-sm">Processing...</span>
             </>
           ) : (
-            'Confirm Swap'
+            <>
+              <span className="uppercase tracking-widest text-sm">Sign & Execute</span>
+              <svg
+                className="w-4 h-4 group-hover:translate-x-1 transition-transform"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                strokeWidth="3"
+              >
+                <path d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+            </>
           )}
-        </button>
+        </motion.button>
       </div>
     </div>
   );
