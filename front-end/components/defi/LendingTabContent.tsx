@@ -2,8 +2,21 @@ import { useState } from "react";
 import { SubTab, SubTabConfig, TabContentProps, LendingPool, ScallopPool } from "@/lib/types/defi";
 import { LendingPoolTable } from "./LendingPoolTable";
 import { getCoinMetadata } from "@/lib/constants/defi-pools";
+import type { FormattedCoinBalance } from "@/lib/sui/balance";
 
-export const LendingTabContent = ({ marketData, loading }: TabContentProps) => {
+interface LendingTabContentProps extends TabContentProps {
+  walletAddress: string;
+  walletCoins: FormattedCoinBalance[];
+  onRefresh: () => void;
+}
+
+export const LendingTabContent = ({
+  marketData,
+  loading,
+  walletAddress,
+  walletCoins,
+  onRefresh,
+}: LendingTabContentProps) => {
   const [activeSubTab, setActiveSubTab] = useState<SubTab>("lending-pools");
 
   const subTabs: SubTabConfig[] = [{ id: "lending-pools", label: "Lending Pools" }];
@@ -45,7 +58,13 @@ export const LendingTabContent = ({ marketData, loading }: TabContentProps) => {
       </div>
 
       {activeSubTab === "lending-pools" && (
-        <LendingPoolTable pools={scallopPools} loading={loading} />
+        <LendingPoolTable
+          pools={scallopPools}
+          walletAddress={walletAddress}
+          walletCoins={walletCoins}
+          onRefresh={onRefresh}
+          loading={loading} 
+        />
       )}
     </>
   );

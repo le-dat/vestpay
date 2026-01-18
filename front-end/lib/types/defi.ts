@@ -66,3 +66,20 @@ export interface TabContentProps {
   marketData?: ScallopMarketData;
   loading?: boolean;
 }
+
+// Lending Modal Types
+export type LendingModalType = 'supply' | 'withdraw';
+
+export interface LendingModalConfig {
+  type: LendingModalType;
+  title: string;
+  actionLabel: string;
+  successMessage: string;
+  maxAmount: number;
+  maxAmountLabel: string;
+  buildTransaction: (params: {
+    userAddress: string;
+    coinName: string;
+    amount: number;
+  }) => Promise<{ transaction: any }>;
+}

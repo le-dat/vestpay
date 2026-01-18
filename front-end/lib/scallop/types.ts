@@ -17,5 +17,5 @@ export interface IWithdrawRequest {
 }
 
 export interface IWithdrawTransactionResponse {
-  txBytes: string;
+  transaction: Transaction;
 }
