@@ -4,7 +4,7 @@ export interface CoinBalance {
   coinType: string;
   coinObjectCount: number;
   totalBalance: string;
-  lockedBalance: string;
+  lockedBalance: Record<string, string>;
 }
 
 export interface CoinMetadata {

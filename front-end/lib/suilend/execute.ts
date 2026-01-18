@@ -1,5 +1,6 @@
 import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
 import { SuiClient } from '@mysten/sui/client';
+import { toSerializedSignature } from '@mysten/sui/cryptography';
 import { ISwapRequest } from './types';
 import { buildSwap } from './swap';
 import { prepareTransactionForSigning } from './core/signing';
@@ -38,7 +39,11 @@ export async function executeSwapWithPasskey(
 
   const txResult = await client.executeTransactionBlock({
     transactionBlock: transactionBytes,
-    signature: signatureData.signature,
+    signature: toSerializedSignature({
+      signature: signatureData,
+      signatureScheme: 'ED25519',
+      publicKey: keypair.getPublicKey(),
+    }),
     options: {
       showEffects: true,
       showObjectChanges: true,

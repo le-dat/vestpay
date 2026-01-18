@@ -14,14 +14,31 @@ export async function buildFlowXSwapTransaction(params: SwapParams): Promise<Swa
 
     logSwapAttempt(PROVIDER_NAMES.flowx, tokenIn, tokenOut, amountIn);
 
-    const routesResult = await flowxQuoter.getRoutes({
-      tokenIn: tokenIn.coinType,
-      tokenOut: tokenOut.coinType,
-      amountIn,
-    });
+    let routesResult;
+    let retries = 3;
+    while (retries > 0) {
+      try {
+        routesResult = await flowxQuoter.getRoutes({
+          tokenIn: tokenIn.coinType,
+          tokenOut: tokenOut.coinType,
+          amountIn,
+        });
+
+        if (routesResult && Array.isArray(routesResult) && routesResult.length > 0) {
+          break;
+        }
+      } catch (e) {
+        console.warn(`FlowX route fetch failed, retrying... (${retries} left)`, e);
+      }
+
+      retries--;
+      if (retries > 0) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+    }
 
     if (!routesResult || !Array.isArray(routesResult) || routesResult.length === 0) {
-      throw new Error(`No routes found from FlowX ${tokenIn.symbol} -> ${tokenOut.symbol}`);
+      throw new Error(`No routes found from FlowX ${tokenIn.symbol} -> ${tokenOut.symbol} after retries`);
     }
 
     const bestRoute = routesResult[0];
