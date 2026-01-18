@@ -1,8 +1,11 @@
 "use client";
 
-import { ArrowDownLeft, ArrowUpRight, RefreshCw } from "lucide-react";
+import { CoinIcon } from "@/components/wallet/CoinIcon";
+import { useRefresh } from "@/lib/hooks/useRefresh";
 import { useWallet } from "@/lib/hooks/useWallet";
-import { useState } from "react";
+import { formatCoinBalance } from "@/lib/utils/format";
+import { ArrowDownLeft, ArrowUpRight, RefreshCw, Wallet, LayoutGrid } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface BalanceCardProps {
   onDeposit?: () => void;
@@ -11,140 +14,105 @@ interface BalanceCardProps {
 
 export default function BalanceCard({ onDeposit, onSend }: BalanceCardProps) {
   const { coins, loading, refresh } = useWallet();
-  const [refreshing, setRefreshing] = useState(false);
+  const { refreshing, handleRefresh } = useRefresh(refresh);
 
-  // Get primary SUI balance
-  const suiCoin = coins.find((coin) => coin.coinType.includes("::sui::SUI"));
-  const suiBalance = suiCoin?.balanceFormatted || "0";
-
-  // Get USDT or first non-SUI token for asset display
-  const assetCoin = coins.find(
-    (coin) =>
-      coin.symbol === "USDT" || !coin.coinType.includes("::sui::SUI")
-  ) || suiCoin;
-
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    await refresh();
-    setTimeout(() => setRefreshing(false), 500);
-  };
-
-  // Calculate total USD value (placeholder - requires price API)
   const totalUSD = "0.00";
 
   return (
-    <div className="bg-white border border-gray-100 rounded-[32px] p-8 shadow-sm">
-      {/* Header with Refresh */}
-      <div className="flex items-center justify-between mb-8">
-        <h2 className="text-[40px] font-bold text-primary mb-1">
-          ${totalUSD}{" "}
-          <span className="text-gray-400 text-2xl font-medium ml-1">USD</span>
-        </h2>
-        <button
-          onClick={handleRefresh}
-          disabled={loading || refreshing}
-          className="p-2 hover:bg-gray-50 rounded-full transition-all disabled:opacity-50"
-          title="Refresh balance"
-        >
-          <RefreshCw
-            className={`w-5 h-5 text-gray-400 ${refreshing || loading ? "animate-spin" : ""}`}
-          />
-        </button>
-      </div>
+    <div className="relative overflow-hidden bg-white border border-gray-100 rounded-[32px] shadow-xs hover:shadow-xl transition-all duration-500 group">
+      {/* Decorative Background Gradient */}
+      <div className="absolute top-0 right-0 w-1/2 h-full bg-linear-to-bl from-primary/5 via-transparent to-transparent pointer-events-none" />
 
-      {/* Asset & Balance */}
-      <div className="grid grid-cols-2 gap-8 mb-10">
-        <div>
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
-            Asset
-          </p>
-          {loading ? (
-            <div className="h-8 w-24 bg-gray-100 rounded animate-pulse"></div>
-          ) : (
-            <div className="flex items-center gap-3">
-              {assetCoin?.iconUrl ? (
-                <img
-                  src={assetCoin.iconUrl}
-                  alt={assetCoin.symbol}
-                  className="w-8 h-8 rounded-full"
-                />
-              ) : (
-                <div className="w-8 h-8 rounded-full bg-[#26A17B] flex items-center justify-center text-white text-xs font-bold">
-                  {assetCoin?.symbol?.charAt(0) || "S"}
-                </div>
-              )}
-              <span className="font-bold text-gray-900">
-                {assetCoin?.symbol || "SUI"}
-              </span>
+      <div className="p-8 sm:p-10 relative z-10">
+        <div className="flex items-start justify-between mb-10">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 text-gray-400 font-semibold text-xs uppercase tracking-widest mb-2">
+              <Wallet className="w-3.5 h-3.5" />
+              <span>Total Balance</span>
             </div>
-          )}
-        </div>
-        <div className="text-right">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
-            Balance
-          </p>
-          {loading ? (
-            <div className="h-6 w-32 bg-gray-100 rounded animate-pulse ml-auto"></div>
-          ) : (
-            <p className="font-bold text-gray-900">
-              {parseFloat(assetCoin?.balanceFormatted || "0").toFixed(4)}{" "}
-              {assetCoin?.symbol || "SUI"}
-            </p>
-          )}
-        </div>
-      </div>
-
-      {/* All Coins Summary */}
-      {!loading && coins.length > 1 && (
-        <div className="mb-8 p-4 bg-gray-50 rounded-2xl">
-          <p className="text-xs font-semibold text-gray-500 mb-2">All Assets</p>
-          <div className="space-y-2">
-            {coins.map((coin) => (
-              <div
-                key={coin.coinType}
-                className="flex items-center justify-between text-sm"
-              >
-                <div className="flex items-center gap-2">
-                  {coin.iconUrl ? (
-                    <img
-                      src={coin.iconUrl}
-                      alt={coin.symbol}
-                      className="w-5 h-5 rounded-full"
-                    />
-                  ) : (
-                    <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center text-primary text-[10px] font-bold">
-                      {coin.symbol.charAt(0)}
-                    </div>
-                  )}
-                  <span className="font-medium text-gray-700">
-                    {coin.symbol}
-                  </span>
-                </div>
-                <span className="font-semibold text-gray-900">
-                  {parseFloat(coin.balanceFormatted).toFixed(4)}
-                </span>
-              </div>
-            ))}
+            <h2 className="text-[56px] leading-none font-bold text-secondary tracking-tight">
+              ${totalUSD} <span className="text-gray-300 text-3xl font-medium ml-1">USD</span>
+            </h2>
           </div>
-        </div>
-      )}
 
-      {/* Actions */}
-      <div className="flex gap-3">
-        <button
-          onClick={onDeposit}
-          className="flex items-center gap-2 px-6 py-2.5 rounded-full border border-gray-100 font-semibold text-primary hover:bg-gray-50 transition-all"
-        >
-          <ArrowDownLeft className="w-5 h-5" />
-          Deposit
-        </button>
-        <button
-          onClick={onSend}
-          className="flex items-center gap-2 px-6 py-2.5 rounded-full border border-gray-100 font-semibold text-primary hover:bg-gray-50 transition-all"
-        >
-          <ArrowUpRight className="w-5 h-5" />
-          Send
-        </button>
+          <motion.button
+            whileHover={{ rotate: 180 }}
+            transition={{ duration: 0.5, ease: "easeInOut" }}
+            onClick={handleRefresh}
+            disabled={loading || refreshing}
+            className="p-3 bg-gray-50 hover:bg-white hover:shadow-md border border-gray-100 rounded-2xl transition-all disabled:opacity-50 group/refresh"
+            title="Refresh balance"
+          >
+            <RefreshCw
+              className={`w-6 h-6 text-gray-400 group-hover/refresh:text-primary transition-colors ${
+                refreshing || loading ? "animate-spin text-primary" : ""
+              }`}
+            />
+          </motion.button>
+        </div>
+
+        {!loading && coins.length > 0 && (
+          <div className="mb-10">
+            <div className="flex items-center gap-2 mb-4">
+              <LayoutGrid className="w-4 h-4 text-primary" />
+              <p className="text-sm font-bold text-secondary">Asset Distribution</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {coins.map((coin, index) => (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: index * 0.05 }}
+                  key={coin.coinType}
+                  className="flex items-center justify-between p-4 bg-gray-50/50 hover:bg-white border border-transparent hover:border-primary/20 rounded-2xl transition-all group/coin"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="relative">
+                      <CoinIcon
+                        iconUrl={coin.iconUrl}
+                        symbol={coin.symbol}
+                        size="md"
+                        variant="primary"
+                      />
+                      <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 border-2 border-white rounded-full" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                        {coin.symbol}
+                      </p>
+                      <p className="text-sm font-bold text-secondary">
+                        {coin.symbol === "SUI" ? "Sui Network" : coin.symbol}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-bold text-secondary leading-none mb-1">
+                      {formatCoinBalance(coin.balanceFormatted)}
+                    </p>
+                    <p className="text-[10px] font-medium text-gray-400 tracking-tight">≈ $0.00</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="flex flex-wrap gap-4 pt-2">
+          <button
+            onClick={onDeposit}
+            className="flex-1 min-w-[140px] flex items-center justify-center gap-2 px-8 py-4 rounded-2xl bg-primary text-secondary font-bold hover:shadow-lg hover:shadow-primary/25 hover:-translate-y-0.5 transition-all active:scale-95"
+          >
+            <ArrowDownLeft className="w-5 h-5" />
+            Deposit
+          </button>
+          <button
+            onClick={onSend}
+            className="flex-1 min-w-[140px] flex items-center justify-center gap-2 px-8 py-4 rounded-2xl bg-secondary text-white font-bold hover:shadow-lg hover:shadow-secondary/25 hover:-translate-y-0.5 transition-all active:scale-95"
+          >
+            <ArrowUpRight className="w-5 h-5" />
+            Send Assets
+          </button>
+        </div>
       </div>
     </div>
   );

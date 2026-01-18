@@ -37,14 +37,6 @@ export const LendingTabContent = ({
       };
     }) || [];
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
   return (
     <>
       <div className="flex items-center justify-between mb-6 border-b border-gray-100 pb-4">
@@ -71,6 +63,7 @@ export const LendingTabContent = ({
           walletAddress={walletAddress}
           walletCoins={walletCoins}
           onRefresh={onRefresh}
+          loading={loading} 
         />
       )}
     </>

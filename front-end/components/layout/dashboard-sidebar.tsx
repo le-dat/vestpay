@@ -20,14 +20,7 @@ const navItems = [
       { label: "Dashboard", icon: LayoutDashboard, href: ROUTES.DASHBOARD },
       { label: "Swap", icon: ArrowLeftRight, href: ROUTES.SWAP },
       { label: "Lending", icon: TrendingUp, href: ROUTES.LENDING },
-      { label: "Invoices", icon: FileText, href: ROUTES.INVOICES },
-    ],
-  },
-  {
-    group: "SYSTEM",
-    items: [
-      { label: "Rewards", icon: Award, href: ROUTES.REWARDS },
-      { label: "Settings", icon: Settings, href: ROUTES.SETTINGS },
+      // { label: "Invoices", icon: FileText, href: ROUTES.INVOICES },
     ],
   },
 ];

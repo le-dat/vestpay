@@ -18,11 +18,13 @@ export default function ProtectLayout({ children }: { children: React.ReactNode 
 
   return (
     <ProtectedRoute>
-      <div className="flex min-h-screen ">
+      <div className="flex h-screen overflow-hidden">
         <DashboardSidebar />
         <div className="flex-1 pl-64 flex flex-col">
           <TopBar email={email} />
-          <main className="flex-1 p-8">{children}</main>
+          <main className="flex-1 p-8 overflow-y-auto custom-scrollbar max-h-[calc(100vh-64px)]">
+            {children}
+          </main>
         </div>
       </div>
     </ProtectedRoute>
