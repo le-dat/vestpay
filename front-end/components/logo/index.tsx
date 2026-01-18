@@ -32,9 +32,6 @@ const Logo = () => {
               Pay
             </span>
           </div>
-          <div className="px-1.5 py-0.5 rounded-[6px] bg-[#00d084]/10 text-[#00d084] text-[9px] font-bold uppercase tracking-[0.05em] h-fit mt-1">
-            Beta
-          </div>
         </div>
         <div className="w-10 h-[3.5px] bg-[#00d084] rounded-full mt-[-4px]" />
       </div>

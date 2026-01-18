@@ -23,19 +23,21 @@ function TokenIcon({ token, size = 'md' }: { token: CetusToken; size?: 'sm' | 'm
 
   if (!token.logoURL || imageError) {
     return (
-      <div className={`${sizeClasses[size]} rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold`}>
+      <div className={`${sizeClasses[size]} rounded-full bg-gradient-to-br from-[#00d084] to-[#00c07a] flex items-center justify-center text-white font-black overflow-hidden`}>
         {token.symbol.charAt(0)}
       </div>
     );
   }
 
   return (
-    <img
-      src={token.logoURL}
-      alt={token.symbol}
-      className={`${sizeClasses[size]} rounded-full`}
-      onError={() => setImageError(true)}
-    />
+    <div className={`${sizeClasses[size]} rounded-full overflow-hidden bg-white flex items-center justify-center`}>
+      <img
+        src={token.logoURL}
+        alt={token.symbol}
+        className="w-full h-full object-contain"
+        onError={() => setImageError(true)}
+      />
+    </div>
   );
 }
 
@@ -112,18 +114,20 @@ export default function TokenSelector({ selectedToken, onSelect, excludeToken }:
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-xl transition-colors"
+        className="flex items-center gap-2 bg-gray-50 dark:bg-white/5 p-2 pr-4 pl-3 rounded-full border border-gray-100 dark:border-white/10 hover:border-[#00d084]/50 transition-all shadow-sm group"
       >
         {selectedToken ? (
           <>
-            <TokenIcon token={selectedToken} size="sm" />
-            <span className="font-semibold">{selectedToken.symbol}</span>
+            <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 bg-white">
+              <TokenIcon token={selectedToken} size="md" />
+            </div>
+            <span className="font-black text-[18px] text-[#111827] dark:text-white">{selectedToken.symbol}</span>
           </>
         ) : (
-          <span className="text-gray-500">Select token</span>
+          <span className="text-[#64748b] font-bold">Select</span>
         )}
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        <svg className="w-5 h-5 text-[#94a3b8] group-hover:text-[#111827] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
 
