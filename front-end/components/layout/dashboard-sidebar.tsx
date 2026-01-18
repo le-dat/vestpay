@@ -1,17 +1,33 @@
 import { clearWalletCache } from "@/lib/sui/passkey";
 import { ROUTES } from "@/lib/utils/routes";
-import { Coins, LayoutDashboard, LogOut } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import Logo from "../logo";
+import {
+  LayoutDashboard,
+  ArrowLeftRight,
+  TrendingUp,
+  FileText,
+  Award,
+  Settings,
+  LogOut,
+} from "lucide-react";
 
 const navItems = [
   {
-    group: "Management",
+    group: "MANAGEMENT",
     items: [
       { label: "Dashboard", icon: LayoutDashboard, href: ROUTES.DASHBOARD },
-      { label: "Swap", icon: Coins, href: ROUTES.SWAP },
-      { label: "Lending", icon: Coins, href: ROUTES.LENDING },
+      { label: "Swap", icon: ArrowLeftRight, href: ROUTES.SWAP },
+      { label: "Lending", icon: TrendingUp, href: ROUTES.LENDING },
+      { label: "Invoices", icon: FileText, href: ROUTES.INVOICES },
+    ],
+  },
+  {
+    group: "SYSTEM",
+    items: [
+      { label: "Rewards", icon: Award, href: ROUTES.REWARDS },
+      { label: "Settings", icon: Settings, href: ROUTES.SETTINGS },
     ],
   },
 ];
@@ -26,34 +42,37 @@ export const DashboardSidebar = () => {
   };
 
   return (
-    <aside className="w-64 h-screen border-r border-gray-100 bg-white flex flex-col p-6 fixed left-0 top-0">
-      <div className="mb-10">
+    <aside className="w-64 h-screen border-r border-gray-50 bg-white flex flex-col p-6 fixed left-0 top-0">
+      <div className="mb-10 px-4">
         <Logo />
       </div>
 
-      <nav className="flex-1 space-y-8">
+      <nav className="flex-1 space-y-8 overflow-y-auto custom-scrollbar">
         {navItems.map((group) => (
           <div key={group.group}>
-            <h3 className="text-lg font-semibold text-gray-400 uppercase tracking-wider mb-4 px-3">
+            <h3 className="text-[12px] font-bold text-[#94a3b8] uppercase tracking-[0.2em] mb-4 px-4">
               {group.group}
             </h3>
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               {group.items.map((item) => {
                 const isActive = pathname === item.href;
                 return (
                   <Link
                     key={item.label}
                     href={item.href}
-                    className={`flex items-center gap-3 px-3 py-2 rounded-xl transition-all duration-200 group cursor-pointer ${
+                    className={`flex items-center gap-4 px-4 py-3.5 rounded-[22px] transition-all duration-200 group cursor-pointer ${
                       isActive
-                        ? "bg-primary/10 text-primary"
-                        : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+                        ? "bg-[#00d084]/5 text-[#00d084]"
+                        : "text-[#64748b] hover:bg-gray-50 hover:text-[#111827]"
                     }`}
                   >
                     <item.icon
-                      className={`w-6 h-6 ${isActive ? "text-primary" : "text-gray-400 group-hover:text-gray-600"}`}
+                      className={`w-6 h-6 ${isActive ? "text-[#00d084]" : "text-[#94a3b8] group-hover:text-[#475569]"}`}
+                      strokeWidth={isActive ? 2.5 : 2}
                     />
-                    <span className="font-medium text-2xl">{item.label}</span>
+                    <span className={`text-[17px] ${isActive ? "font-bold" : "font-semibold"}`}>
+                      {item.label}
+                    </span>
                   </Link>
                 );
               })}
@@ -62,13 +81,13 @@ export const DashboardSidebar = () => {
         ))}
       </nav>
 
-      <div className="mt-auto space-y-4">
+      <div className="mt-auto pt-6 border-t border-gray-50">
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-gray-500 hover:bg-red-50 hover:text-red-600 transition-all duration-200 group cursor-pointer"
+          className="w-full flex items-center gap-4 px-4 py-3.5 rounded-[22px] text-[#64748b] hover:bg-red-50 hover:text-red-600 transition-all duration-200 group cursor-pointer"
         >
-          <LogOut className="w-5 h-5 text-gray-400 group-hover:text-red-500" />
-          <span className="font-medium">Logout</span>
+          <LogOut className="w-6 h-6 text-[#94a3b8] group-hover:text-red-500" />
+          <span className="text-[17px] font-semibold">Logout</span>
         </button>
       </div>
     </aside>

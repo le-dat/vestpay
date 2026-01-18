@@ -30,24 +30,55 @@ export async function getTransactionHistory(
   hasNextPage: boolean;
 }> {
   try {
-    const result = await client.queryTransactionBlocks({
-      filter: {
-        FromOrToAddress: {
-          addr: address,
+    // Since FromOrToAddress is not supported by some RPCs, we do two queries and merge
+    const [sent, received] = await Promise.all([
+      client.queryTransactionBlocks({
+        filter: { FromAddress: address },
+        options: {
+          showInput: true,
+          showEffects: true,
+          showEvents: true,
+          showBalanceChanges: true,
         },
-      },
-      options: {
-        showInput: true,
-        showEffects: true,
-        showEvents: true,
-        showBalanceChanges: true,
-      },
-      order: 'descending',
-      limit,
-      cursor,
+        order: 'descending',
+        limit,
+      }),
+      client.queryTransactionBlocks({
+        filter: { ToAddress: address },
+        options: {
+          showInput: true,
+          showEffects: true,
+          showEvents: true,
+          showBalanceChanges: true,
+        },
+        order: 'descending',
+        limit,
+      }),
+    ]);
+
+    // Merge and sort by timestamp
+    const allTransactions = [...sent.data, ...received.data];
+
+    // Sort by timestamp descending
+    allTransactions.sort((a, b) => {
+      const timeA = a.timestampMs ? parseInt(a.timestampMs) : 0;
+      const timeB = b.timestampMs ? parseInt(b.timestampMs) : 0;
+      return timeB - timeA;
     });
 
-    return result;
+    // Remove duplicates (as some might be sent and received by same address)
+    const uniqueTransactions = Array.from(
+      new Map(allTransactions.map((tx) => [tx.digest, tx])).values()
+    );
+
+    // Limit to the requested number
+    const finalData = uniqueTransactions.slice(0, limit);
+
+    return {
+      data: finalData,
+      nextCursor: null, // Cursor logic is complex with merged queries
+      hasNextPage: sent.hasNextPage || received.hasNextPage,
+    };
   } catch (error) {
     console.error('Failed to get transaction history:', error);
     return {
