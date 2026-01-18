@@ -4,14 +4,11 @@ import {
   type BrowserPasswordProviderOptions,
 } from '@mysten/sui/keypairs/passkey';
 import { cacheKeypairInMemory, getCachedKeypairFromMemory } from './keypair-cache';
+import { clearKeypairCache } from './keypair-cache';
 
 const RP_NAME = process.env.NEXT_PUBLIC_RP_NAME || 'Passkey Sui Wallet';
 const RP_ID = process.env.NEXT_PUBLIC_RP_ID || 'localhost';
 
-/**
- * Create a new Passkey wallet
- * This will prompt the user to create a new Passkey credential
- */
 export async function createPasskeyWallet(email: string): Promise<{
   keypair: PasskeyKeypair;
   publicKey: string;
@@ -27,22 +24,18 @@ export async function createPasskeyWallet(email: string): Promise<{
     },
   } as BrowserPasswordProviderOptions);
 
-  // Create new passkey wallet
   const keypair = await PasskeyKeypair.getPasskeyInstance(provider);
 
   const publicKey = keypair.getPublicKey();
   const address = publicKey.toSuiAddress();
 
-  // Cache the keypair in sessionStorage
   cacheKeypair(email, {
     publicKey: publicKey.toBase64(),
     address,
   });
 
-  // Cache keypair in memory for immediate use
   cacheKeypairInMemory(keypair);
 
-  // Store public key persistently for single-prompt login
   storePublicKeyPersistently(email, publicKey.toBase64(), address);
 
   return {
@@ -52,16 +45,11 @@ export async function createPasskeyWallet(email: string): Promise<{
   };
 }
 
-/**
- * Recover existing Passkey wallet
- * Uses stored public key for single-prompt login, falls back to 2-signature recovery
- */
 export async function recoverPasskeyWallet(): Promise<{
   keypair: PasskeyKeypair;
   publicKey: string;
   address: string;
 } | null> {
-  // Check if we have cached keypair first
   const cached = getCachedKeypairFromMemory();
   if (cached) {
     const publicKey = cached.getPublicKey();
@@ -72,7 +60,6 @@ export async function recoverPasskeyWallet(): Promise<{
     };
   }
 
-  // Try to recover from localStorage (NEW - single prompt path)
   const storedWallet = getStoredPublicKey();
   if (storedWallet) {
     try {
@@ -86,21 +73,17 @@ export async function recoverPasskeyWallet(): Promise<{
         },
       } as BrowserPasswordProviderOptions);
 
-      // Sign a single message to authenticate (triggers ONE passkey prompt)
       const testMessage = new TextEncoder().encode('Sui Wallet Login');
       const possiblePks = await PasskeyKeypair.signAndRecover(provider, testMessage);
 
-      // Find the stored public key in the recovered keys
       const matchedPk = possiblePks.find(pk => pk.toBase64() === storedWallet.publicKey);
 
       if (!matchedPk) {
         throw new Error('Stored public key does not match passkey');
       }
 
-      // Reconstruct keypair with matched public key
       const keypair = new PasskeyKeypair(matchedPk.toRawBytes(), provider);
 
-      // Cache for session
       cacheKeypairInMemory(keypair);
 
       return {
@@ -110,11 +93,9 @@ export async function recoverPasskeyWallet(): Promise<{
       };
     } catch (error) {
       console.error('Failed to recover with stored key, falling back to double-signature:', error);
-      // Fall through to original recovery method
     }
   }
 
-  // FALLBACK: Original double-signature recovery (for backward compatibility)
   try {
     const provider = new BrowserPasskeyProvider(RP_NAME, {
       rpName: RP_NAME,
@@ -126,29 +107,24 @@ export async function recoverPasskeyWallet(): Promise<{
       },
     } as BrowserPasswordProviderOptions);
 
-    // Sign two different messages to recover public key
     const message1 = new TextEncoder().encode('Sui Wallet Recovery Message 1');
     const message2 = new TextEncoder().encode('Sui Wallet Recovery Message 2');
 
     const possiblePks1 = await PasskeyKeypair.signAndRecover(provider, message1);
     const possiblePks2 = await PasskeyKeypair.signAndRecover(provider, message2);
 
-    // Find common public key
     const commonPk = findCommonPublicKey(possiblePks1, possiblePks2);
 
     if (!commonPk) {
       throw new Error('Could not recover public key');
     }
 
-    // Reconstruct keypair
     const keypair = new PasskeyKeypair(commonPk.toRawBytes(), provider);
     const address = commonPk.toSuiAddress();
 
-    // Store for future logins
     const email = sessionStorage.getItem('sui_wallet_email') || 'unknown';
     storePublicKeyPersistently(email, commonPk.toBase64(), address);
 
-    // Cache for future use
     cacheKeypairInMemory(keypair);
 
     return {
@@ -162,9 +138,6 @@ export async function recoverPasskeyWallet(): Promise<{
   }
 }
 
-/**
- * Find common public key from two sets of possible keys
- */
 function findCommonPublicKey(
   possiblePks1: any[],
   possiblePks2: any[]
@@ -267,8 +240,6 @@ export function clearWalletCache(): void {
     sessionStorage.removeItem('sui_wallet_info');
     localStorage.removeItem('sui_passkey_wallet');
   }
-  // Also clear in-memory keypair cache
-  const { clearKeypairCache } = require('./keypair-cache');
   clearKeypairCache();
 }
 

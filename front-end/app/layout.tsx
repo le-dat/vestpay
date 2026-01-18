@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Archivo } from "next/font/google";
 import "./globals.css";
 import { NetworkProvider } from "@/lib/context/NetworkContext";
+import { ToastContainer } from "@/components/common/Toast";
 
 const archivo = Archivo({ subsets: ["latin"], variable: "--font-archivo" });
 
@@ -22,6 +23,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${archivo.variable} font-sans `} suppressHydrationWarning>
         <NetworkProvider>{children}</NetworkProvider>
+        <ToastContainer />
       </body>
     </html>
   );

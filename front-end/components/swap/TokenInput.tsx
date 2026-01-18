@@ -11,6 +11,8 @@ interface TokenInputProps {
   excludeToken?: CetusToken | null;
   disabled?: boolean;
   readOnly?: boolean;
+  balance?: string;
+  onMaxClick?: () => void;
 }
 
 function TokenIcon({ token, size = 'md' }: { token: CetusToken; size?: 'sm' | 'md' | 'lg' }) {
@@ -51,6 +53,8 @@ export default function TokenInput({
   excludeToken,
   disabled = false,
   readOnly = false,
+  balance,
+  onMaxClick,
 }: TokenInputProps) {
   const type = label.toLowerCase().includes('pay') || label.toLowerCase().includes('sell') ? 'sell' : 'buy';
   
@@ -69,10 +73,19 @@ export default function TokenInput({
           <input
             type="number"
             value={amount}
-            onChange={(e) => onAmountChange(e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value;
+              // Only allow positive numbers and decimals
+              if (value === '' || (parseFloat(value) >= 0)) {
+                onAmountChange(value);
+              }
+            }}
+            onWheel={(e) => e.currentTarget.blur()} // Disable scroll
             disabled={disabled}
             readOnly={readOnly}
-            className="flex-1 min-w-0 bg-transparent text-[52px] font-black outline-none text-[#111827] dark:text-white placeholder:text-gray-100 dark:placeholder:text-white/5 leading-tight"
+            min="0"
+            step="any"
+            className="flex-1 min-w-0 bg-transparent text-[52px] font-black outline-none text-[#111827] dark:text-white placeholder:text-gray-100 dark:placeholder:text-white/5 leading-tight [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             placeholder="0"
           />
           <div className="flex-shrink-0">
@@ -103,11 +116,16 @@ export default function TokenInput({
           </div>
           <div className="flex items-center gap-2">
             <span className="text-[#94a3b8] text-[13px] font-bold">
-              Balance: <span className="text-[#64748b] dark:text-[#94a3b8]">-</span>
+              Balance: <span className="text-[#111827] dark:text-white font-black">{balance || '-'}</span>
             </span>
             {type === 'sell' && (
                 <div className="flex items-center gap-1.5 ml-2">
-                   <button className="text-[12px] font-black text-[#00d084] hover:opacity-80 transition-all">MAX</button>
+                   <button 
+                     onClick={onMaxClick}
+                     className="text-[12px] font-black text-[#00d084] hover:opacity-80 transition-all"
+                   >
+                     MAX
+                   </button>
                    <span className="text-[#94a3b8] text-xs">•</span>
                    <button className="text-[12px] font-black text-[#64748b] hover:text-[#00d084] transition-all">%</button>
                 </div>

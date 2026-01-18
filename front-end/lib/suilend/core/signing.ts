@@ -1,6 +1,7 @@
 import { Transaction } from '@mysten/sui/transactions';
 import { blake2b } from '@noble/hashes/blake2.js';
 import { client, createTimeout } from '../sdk';
+import type { PasskeyKeypair } from '@mysten/sui/keypairs/passkey';
 
 export async function buildTransactionBytes(
   transaction: Transaction
@@ -46,4 +47,40 @@ export async function prepareTransactionForSigning(
     digest: Buffer.from(digest).toString('base64'),
     intent: Buffer.from(intent).toString('base64'),
   };
+}
+
+export async function signAndExecuteSwapTransaction(
+  transaction: Transaction,
+  keypair: PasskeyKeypair
+): Promise<{ digest: string }> {
+  try {
+    // Sign and execute transaction
+    const result = await client.signAndExecuteTransaction({
+      transaction,
+      signer: keypair,
+      options: {
+        showEffects: true,
+        showObjectChanges: true,
+      },
+    });
+
+    if (!result.digest) {
+      throw new Error('Transaction failed: No digest returned');
+    }
+
+    // Wait for transaction confirmation
+    await client.waitForTransaction({
+      digest: result.digest,
+      options: {
+        showEffects: true,
+      },
+    });
+
+    return {
+      digest: result.digest,
+    };
+  } catch (error) {
+    console.error('Failed to sign and execute transaction:', error);
+    throw error;
+  }
 }
