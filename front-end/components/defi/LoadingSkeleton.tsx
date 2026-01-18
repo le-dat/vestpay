@@ -1,4 +1,4 @@
-const LoadingSkeleton = ({ type }: { type: "lending" | "borrowing" }) => {
+export const LoadingSkeleton = ({ type }: { type: "lending" | "borrowing" }) => {
   return (
     <>
       {Array.from({ length: 10 }).map((_, i) => (
@@ -47,5 +47,3 @@ const LoadingSkeleton = ({ type }: { type: "lending" | "borrowing" }) => {
     </>
   );
 };
-
-export default LoadingSkeleton;

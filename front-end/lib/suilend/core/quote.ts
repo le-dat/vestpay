@@ -52,7 +52,7 @@ export async function getSwapQuotes(
 ): Promise<StandardizedQuote[]> {
   const sdkMap = await initializeDexSdks();
 
-  // Try Aftermath first, but fallback if it times out
+  // Try all providers
   let activeProviders = [
     QuoteProvider.AFTERMATH,
     QuoteProvider.CETUS,
@@ -67,33 +67,60 @@ export async function getSwapQuotes(
       tokenOut,
       amountIn
     );
-    
+
     // Filter out quotes with very low amounts (likely errors)
-    return quotes.filter(q => {
-      const amount = extractRawAmountOut(q);
-      return amount > 0;
+    const validQuotes = quotes.filter(q => {
+      try {
+        const amount = extractRawAmountOut(q);
+        return amount > 0;
+      } catch {
+        return false;
+      }
     });
+
+    if (validQuotes.length > 0) {
+      return validQuotes;
+    }
+
+    throw new Error('No valid quotes found');
   } catch (error) {
-    console.warn('Some DEX providers failed, trying without Aftermath:', error);
-    
-    // Retry without Aftermath
-    activeProviders = [
-      QuoteProvider.CETUS,
-      QuoteProvider.FLOWX,
-    ];
-    
-    const quotes = await getAggSortedQuotesAll(
-      sdkMap,
-      activeProviders,
-      tokenIn,
-      tokenOut,
-      amountIn
-    );
-    
-    return quotes.filter(q => {
-      const amount = extractRawAmountOut(q);
-      return amount > 0;
-    });
+    // Suppress timeout warnings - they're expected
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    const isTimeout = errorMsg.includes('timeout') || errorMsg.includes('1500ms');
+
+    if (!isTimeout) {
+      console.warn('Some DEX providers had issues:', errorMsg);
+    }
+
+    // Retry without Aftermath (faster)
+    try {
+      activeProviders = [
+        QuoteProvider.CETUS,
+        QuoteProvider.FLOWX,
+      ];
+
+      const quotes = await getAggSortedQuotesAll(
+        sdkMap,
+        activeProviders,
+        tokenIn,
+        tokenOut,
+        amountIn
+      );
+
+      const validQuotes = quotes.filter(q => {
+        try {
+          const amount = extractRawAmountOut(q);
+          return amount > 0;
+        } catch {
+          return false;
+        }
+      });
+
+      return validQuotes;
+    } catch (fallbackError) {
+      // Return empty array - let UI handle it gracefully
+      return [];
+    }
   }
 }
 
@@ -116,12 +143,12 @@ export function extractRawAmountOut(quote: StandardizedQuote): number {
   if (quoteWithRaw.quote?.coinOut?.amount) {
     return Number(quoteWithRaw.quote.coinOut.amount);
   }
-  
+
   // Try FlowX format (string in rawQuote.amountOut)
   if (quoteWithRaw.quote?.rawQuote?.amountOut) {
     return Number(quoteWithRaw.quote.rawQuote.amountOut);
   }
-  
+
   // Try Cetus format (BN object in amountOut)
   if (quoteWithRaw.quote?.amountOut) {
     const bn = quoteWithRaw.quote.amountOut;
@@ -130,7 +157,7 @@ export function extractRawAmountOut(quote: StandardizedQuote): number {
       return bn.toNumber();
     }
   }
-  
+
   // Last resort: try to parse the out.amount BigNumber
   const raw = quote.out.amount as any;
   if (raw && typeof raw === 'object') {
@@ -140,7 +167,7 @@ export function extractRawAmountOut(quote: StandardizedQuote): number {
       // If it's a valid number > 1, use it
       if (num > 1) return num;
     }
-    
+
     // Try to convert to string and parse
     try {
       const str = raw.toString();
@@ -150,6 +177,6 @@ export function extractRawAmountOut(quote: StandardizedQuote): number {
       // ignore
     }
   }
-  
+
   return quote.out.amount.toNumber();
 }

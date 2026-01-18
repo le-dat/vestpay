@@ -39,12 +39,12 @@ export default function SwapInterface({ walletInfo }: SwapInterfaceProps) {
   useEffect(() => {
     if (walletInfo.address) {
       fetchHistory(); // Initial fetch
-      
+
       // Auto refresh every 5 seconds
       const interval = setInterval(() => {
         fetchHistory();
       }, 5000);
-      
+
       // Cleanup interval on unmount
       return () => clearInterval(interval);
     }
@@ -69,7 +69,7 @@ export default function SwapInterface({ walletInfo }: SwapInterfaceProps) {
     try {
       const { SuiClient } = await import('@mysten/sui/client');
       const client = new SuiClient({ url: 'https://fullnode.mainnet.sui.io' });
-      
+
       const balance = await client.getBalance({
         owner: walletInfo.address,
         coinType: coinType,
@@ -84,7 +84,7 @@ export default function SwapInterface({ walletInfo }: SwapInterfaceProps) {
 
   async function updateBalances() {
     if (!tokenIn || !tokenOut) return;
-    
+
     const [inBalance, outBalance] = await Promise.all([
       fetchTokenBalance(tokenIn.coinType),
       fetchTokenBalance(tokenOut.coinType),
@@ -157,9 +157,16 @@ export default function SwapInterface({ walletInfo }: SwapInterfaceProps) {
 
       if (allQuotes.length > 0) {
         setSelectedQuote(allQuotes[0]);
+      } else {
+        // Show helpful message instead of error
+        setError('No routes available for this pair. Try a different amount or token pair.');
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to get quotes');
+      const errorMsg = err instanceof Error ? err.message : 'Failed to get quotes';
+      // Don't show timeout errors to user
+      if (!errorMsg.includes('timeout') && !errorMsg.includes('1500ms')) {
+        setError(errorMsg);
+      }
     } finally {
       setLoading(false);
     }
@@ -510,11 +517,11 @@ export default function SwapInterface({ walletInfo }: SwapInterfaceProps) {
                     disabled={historyLoading}
                     className="flex items-center gap-1.5 text-[12px] font-bold text-[#94a3b8] hover:text-[#00d084] transition-colors disabled:opacity-50"
                   >
-                    <svg 
-                      className={`w-3.5 h-3.5 ${historyLoading ? 'animate-spin' : ''}`} 
-                      fill="none" 
-                      stroke="currentColor" 
-                      viewBox="0 0 24 24" 
+                    <svg
+                      className={`w-3.5 h-3.5 ${historyLoading ? 'animate-spin' : ''}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
                       strokeWidth="2.5"
                     >
                       <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
