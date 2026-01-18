@@ -1,4 +1,4 @@
-# <p align="center"><img src="./front-end/public/vestpay_banner.png" alt="Vestpay Banner" width="800"/></p>
+# <p align="center"><img src="./front-end/public/images/vestpay_banner.png" alt="Vestpay Banner" width="800"/></p>
 
 # 🚀 VestPay - Premium DeFi Experience on Sui
 
