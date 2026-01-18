@@ -1,7 +1,7 @@
 const LoadingSkeleton = ({ type }: { type: "lending" | "borrowing" }) => {
   return (
     <>
-      {Array.from({ length: 5 }).map((_, i) => (
+      {Array.from({ length: 10 }).map((_, i) => (
         <tr key={i} className="animate-pulse border-b border-gray-50/50">
           <td className="py-5 pl-2">
             <div className="flex items-center gap-3">
