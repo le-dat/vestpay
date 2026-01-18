@@ -3,7 +3,7 @@ import { client } from '../../sdk';
 import { getDexSdk } from '../quote';
 import { FLOWX_DEADLINE_MS, PROVIDER_NAMES } from '../constants';
 import type { SwapParams, SwapResult } from '../types';
-import { convertToError, logSwapAttempt, logSwapSuccess, logRouteFound } from '../helpers';
+import { convertToError, logSwapAttempt, logSwapSuccess, logRouteFound, withRetry } from '../helpers';
 
 export async function buildFlowXSwapTransaction(params: SwapParams): Promise<SwapResult> {
   const { userAddress, tokenIn, tokenOut, amountIn, slippagePercent } = params;
@@ -14,28 +14,16 @@ export async function buildFlowXSwapTransaction(params: SwapParams): Promise<Swa
 
     logSwapAttempt(PROVIDER_NAMES.flowx, tokenIn, tokenOut, amountIn);
 
-    let routesResult;
-    let retries = 3;
-    while (retries > 0) {
-      try {
-        routesResult = await flowxQuoter.getRoutes({
-          tokenIn: tokenIn.coinType,
-          tokenOut: tokenOut.coinType,
-          amountIn,
-        });
-
-        if (routesResult && Array.isArray(routesResult) && routesResult.length > 0) {
-          break;
-        }
-      } catch (e) {
-        console.warn(`FlowX route fetch failed, retrying... (${retries} left)`, e);
-      }
-
-      retries--;
-      if (retries > 0) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-      }
-    }
+    const routesResult = await withRetry(
+      () => flowxQuoter.getRoutes({
+        tokenIn: tokenIn.coinType,
+        tokenOut: tokenOut.coinType,
+        amountIn,
+      }),
+      10,
+      1000,
+      (result) => !!result && Array.isArray(result) && result.length > 0
+    );
 
     if (!routesResult || !Array.isArray(routesResult) || routesResult.length === 0) {
       throw new Error(`No routes found from FlowX ${tokenIn.symbol} -> ${tokenOut.symbol} after retries`);

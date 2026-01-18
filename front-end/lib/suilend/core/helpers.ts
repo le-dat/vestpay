@@ -41,3 +41,32 @@ export function logRouteFound(provider: string, amountIn: string, amountOut: str
     amountOut,
   });
 }
+
+export async function withRetry<T>(
+  fn: () => Promise<T>,
+  retries: number = 3,
+  delayMs: number = 1000,
+  validator?: (result: T) => boolean
+): Promise<T> {
+  let lastError: any;
+
+  for (let i = 0; i < retries; i++) {
+    try {
+      const result = await fn();
+      if (!validator || validator(result)) {
+        return result;
+      }
+
+      lastError = new Error('Validation failed');
+    } catch (error) {
+      lastError = error;
+      console.warn(`Attempt ${i + 1}/${retries} failed:`, error);
+    }
+
+    if (i < retries - 1) {
+      await new Promise(resolve => setTimeout(resolve, delayMs));
+    }
+  }
+
+  throw lastError;
+}
