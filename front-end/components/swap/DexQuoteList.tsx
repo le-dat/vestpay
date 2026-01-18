@@ -4,6 +4,7 @@ import { extractRawAmountOut } from "@/lib/suilend/core/quote";
 import type { CetusToken } from "@/lib/suilend/core/tokens";
 import type { StandardizedQuote } from "@suilend/sdk";
 import { AnimatePresence, motion } from "framer-motion";
+import Image from "next/image";
 
 interface DexQuoteListProps {
   quotes: StandardizedQuote[];
@@ -26,7 +27,6 @@ export default function DexQuoteList({
   onSelectQuote,
   loading,
 }: DexQuoteListProps) {
-  // Filter out quotes without valid data
   const validQuotes = quotes.filter((quote) => {
     try {
       return quote && quote.routes && quote.routes.length > 0;
@@ -101,14 +101,23 @@ export default function DexQuoteList({
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  {/* <motion.div
-                    className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#00d084] to-[#00a569] flex items-center justify-center text-xl shadow-md"
-                    whileHover={{ rotate: [0, -10, 10, -10, 0] }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    {DEX_ICONS[dexName] || '🔄'}
-                  </motion.div> */}
-                  <img src={DEX_ICONS[dexName]} alt={dexName} className="w-10 h-10 rounded-xl" />
+                  {DEX_ICONS?.[dexName] ? (
+                    <Image
+                      src={DEX_ICONS?.[dexName]}
+                      alt={dexName}
+                      className="w-10 h-10 rounded-xl"
+                      width={40}
+                      height={40}
+                    />
+                  ) : (
+                    <motion.div
+                      className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#00d084] to-[#00a569] flex items-center justify-center text-xl shadow-md"
+                      whileHover={{ rotate: [0, -10, 10, -10, 0] }}
+                      transition={{ duration: 0.5 }}
+                    >
+                      {dexName.slice(0, 2).toUpperCase()}
+                    </motion.div>
+                  )}
                   <div className="text-left">
                     <div className="flex items-center gap-2">
                       <span className="font-black text-[14px] text-gray-800 dark:text-white uppercase tracking-tight">

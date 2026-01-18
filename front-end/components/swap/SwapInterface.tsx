@@ -411,7 +411,7 @@ export default function SwapInterface({ walletInfo }: SwapInterfaceProps) {
               <button
                 onClick={handleBuildTransaction}
                 disabled={loading}
-                className="w-full py-6 bg-[#00d084] hover:bg-[#00c07a] text-white text-[22px] font-black rounded-full shadow-xl shadow-[#00d084]/20 transition-all transform hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-3 tracking-tight uppercase"
+                className="w-full py-6 bg-[#00d084] hover:bg-[#00c07a] text-white text-[18px] font-black rounded-full shadow-xl shadow-[#00d084]/20 transition-all transform hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-3 tracking-tight uppercase"
               >
                 {loading ? (
                   <svg className="animate-spin h-7 w-7 text-white" fill="none" viewBox="0 0 24 24">
@@ -440,7 +440,7 @@ export default function SwapInterface({ walletInfo }: SwapInterfaceProps) {
             ) : (
               <button
                 disabled={!amountIn || loading}
-                className="w-full py-6 bg-gray-100 text-[#94a3b8] text-[20px] font-black rounded-full disabled:opacity-50 uppercase tracking-tight"
+                className="w-full py-6 bg-gray-100 text-[#94a3b8] text-[16px] font-black rounded-full disabled:opacity-50 uppercase tracking-tight"
               >
                 Enter Amount
               </button>
