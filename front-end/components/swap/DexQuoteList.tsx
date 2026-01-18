@@ -1,9 +1,10 @@
-'use client';
+"use client";
 
-import { motion, AnimatePresence } from 'framer-motion';
-import type { StandardizedQuote } from '@suilend/sdk';
-import { extractRawAmountOut } from '@/lib/suilend/core/quote';
-import type { CetusToken } from '@/lib/suilend/core/tokens';
+import { extractRawAmountOut } from "@/lib/suilend/core/quote";
+import type { CetusToken } from "@/lib/suilend/core/tokens";
+import type { StandardizedQuote } from "@suilend/sdk";
+import { AnimatePresence, motion } from "framer-motion";
+import Image from "next/image";
 
 interface DexQuoteListProps {
   quotes: StandardizedQuote[];
@@ -14,11 +15,9 @@ interface DexQuoteListProps {
 }
 
 const DEX_ICONS: Record<string, string> = {
-  aftermath: '🌊',
-  cetus: '🐋',
-  flowx: '💧',
-  turbos: '⚡',
-  bluefin: '🐟',
+  aftermath: "/images/swap/aftermath.png",
+  cetus: "/images/swap/cetus.webp",
+  flowx: "/images/swap/flowx.png",
 };
 
 export default function DexQuoteList({
@@ -28,8 +27,7 @@ export default function DexQuoteList({
   onSelectQuote,
   loading,
 }: DexQuoteListProps) {
-  // Filter out quotes without valid data
-  const validQuotes = quotes.filter(quote => {
+  const validQuotes = quotes.filter((quote) => {
     try {
       return quote && quote.routes && quote.routes.length > 0;
     } catch {
@@ -42,8 +40,19 @@ export default function DexQuoteList({
       <div className="bg-white dark:bg-gray-800/50 rounded-[20px] p-4 shadow-lg border border-gray-100 dark:border-gray-700/50">
         <div className="flex items-center justify-center gap-2 text-gray-500">
           <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            />
           </svg>
           <span className="text-sm font-bold">Finding best routes...</span>
         </div>
@@ -85,19 +94,30 @@ export default function DexQuoteList({
                 disabled={loading}
                 whileHover={{ scale: 1.01, x: 2 }}
                 whileTap={{ scale: 0.98 }}
-                className={`w-full flex items-center justify-between p-3 rounded-[16px] transition-all ${isSelected
-                    ? 'bg-[#00d084]/10 border-2 border-[#00d084]/30 shadow-md'
-                    : 'bg-gray-50 dark:bg-gray-700/30 border-2 border-transparent hover:border-gray-200 dark:hover:border-gray-600'
-                  }`}
+                className={`w-full flex items-center justify-between p-3 rounded-[16px] transition-all ${
+                  isSelected
+                    ? "bg-[#00d084]/10 border-2 border-[#00d084]/30 shadow-md"
+                    : "bg-gray-50 dark:bg-gray-700/30 border-2 border-transparent hover:border-gray-200 dark:hover:border-gray-600"
+                }`}
               >
                 <div className="flex items-center gap-3">
-                  <motion.div
-                    className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#00d084] to-[#00a569] flex items-center justify-center text-xl shadow-md"
-                    whileHover={{ rotate: [0, -10, 10, -10, 0] }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    {DEX_ICONS[dexName] || '🔄'}
-                  </motion.div>
+                  {DEX_ICONS?.[dexName] ? (
+                    <Image
+                      src={DEX_ICONS?.[dexName]}
+                      alt={dexName}
+                      className="w-10 h-10 rounded-xl"
+                      width={40}
+                      height={40}
+                    />
+                  ) : (
+                    <motion.div
+                      className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#00d084] to-[#00a569] flex items-center justify-center text-xl shadow-md"
+                      whileHover={{ rotate: [0, -10, 10, -10, 0] }}
+                      transition={{ duration: 0.5 }}
+                    >
+                      {dexName.slice(0, 2).toUpperCase()}
+                    </motion.div>
+                  )}
                   <div className="text-left">
                     <div className="flex items-center gap-2">
                       <span className="font-black text-[14px] text-gray-800 dark:text-white uppercase tracking-tight">
@@ -107,7 +127,7 @@ export default function DexQuoteList({
                         <motion.span
                           initial={{ scale: 0, opacity: 0 }}
                           animate={{ scale: 1, opacity: 1 }}
-                          transition={{ delay: 0.3, type: 'spring', stiffness: 500, damping: 30 }}
+                          transition={{ delay: 0.3, type: "spring", stiffness: 500, damping: 30 }}
                           className="px-2.5 py-1 bg-gradient-to-r from-[#00d084] to-[#00a569] text-white text-[10px] font-black rounded-full uppercase shadow-sm"
                         >
                           Best
@@ -115,7 +135,7 @@ export default function DexQuoteList({
                       )}
                     </div>
                     <div className="text-[11px] font-bold text-gray-500 dark:text-gray-400 mt-0.5">
-                      {quote.routes?.length || 0} route{(quote.routes?.length || 0) > 1 ? 's' : ''}
+                      {quote.routes?.length || 0} route{(quote.routes?.length || 0) > 1 ? "s" : ""}
                     </div>
                   </div>
                 </div>
@@ -136,7 +156,7 @@ export default function DexQuoteList({
               </motion.button>
             );
           } catch (error) {
-            console.error('Error rendering quote:', error);
+            console.error("Error rendering quote:", error);
             return null;
           }
         })}
