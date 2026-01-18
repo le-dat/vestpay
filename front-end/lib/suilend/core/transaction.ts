@@ -47,7 +47,7 @@ export async function buildSwapTransaction(
     amountIn,
     slippagePercent,
     bestQuote
-  );
+  )
 
   return {
     ...result,

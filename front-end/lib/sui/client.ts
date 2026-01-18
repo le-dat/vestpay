@@ -2,16 +2,10 @@ import { SuiClient, getFullnodeUrl } from '@mysten/sui/client';
 
 const NETWORK = (process.env.NEXT_PUBLIC_SUI_NETWORK || 'testnet') as 'testnet' | 'devnet' | 'mainnet';
 
-/**
- * Get Sui client instance
- */
 export function getSuiClient(): SuiClient {
   return new SuiClient({ url: getFullnodeUrl(NETWORK) });
 }
 
-/**
- * Get wallet balance
- */
 export async function getWalletBalance(address: string): Promise<string> {
   try {
     const client = getSuiClient();
@@ -28,9 +22,6 @@ export async function getWalletBalance(address: string): Promise<string> {
   }
 }
 
-/**
- * Get wallet objects
- */
 export async function getWalletObjects(address: string): Promise<any[]> {
   try {
     const client = getSuiClient();
@@ -44,9 +35,6 @@ export async function getWalletObjects(address: string): Promise<any[]> {
   }
 }
 
-/**
- * Get Sui Explorer URL for address
- */
 export function getExplorerUrl(address: string, network: 'testnet' | 'devnet' | 'mainnet' = 'testnet'): string {
   const baseUrl = network === 'mainnet'
     ? 'https://suiscan.xyz/mainnet'
