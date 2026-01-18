@@ -14,9 +14,9 @@ interface NetworkContextType {
 const NetworkContext = createContext<NetworkContextType | undefined>(undefined);
 
 export function NetworkProvider({ children }: { children: ReactNode }) {
-  const [network, setNetworkState] = useState<Network>('testnet');
+  const [network, setNetworkState] = useState<Network>('mainnet');
   const [client, setClient] = useState<SuiClient>(
-    new SuiClient({ url: getFullnodeUrl('testnet') })
+    new SuiClient({ url: getFullnodeUrl('mainnet') })
   );
 
   const setNetwork = (newNetwork: Network) => {
