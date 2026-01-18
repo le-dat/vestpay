@@ -6,8 +6,8 @@
   --color-accent: #00f5a0;
   --color-border: #1e293b;
 
-  --color-background: #fffff;
-  --color-foreground: #33333;
+  --color-background: #ffffff;
+  --color-foreground: #333333;
 
   --font-sans: var(--font-archivo);
   --font-mono: var(--font-geist-mono);
@@ -24,8 +24,26 @@
   --accent: #00f5a0;
 }
 
-body, h1, h2, h3, h4, h5, h6, p, span, div, button, input, textarea, select {
-  font-family: var(--font-archivo), ui-sans-serif, system-ui, -apple-system, sans-serif !important;
+body,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+span,
+div,
+button,
+input,
+textarea,
+select {
+  font-family:
+    var(--font-archivo),
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    sans-serif !important;
 }
 
 body {

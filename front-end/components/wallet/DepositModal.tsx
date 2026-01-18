@@ -27,17 +27,12 @@ export default function DepositModal({ isOpen, onClose }: DepositModalProps) {
     }
   };
 
-  // Format address for display (0x1234...5678)
-  const formattedAddress = address
-    ? `${address.slice(0, 6)}...${address.slice(-4)}`
-    : "";
-
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Deposit to Wallet">
-      <div className="space-y-6">
+      <div className="space-y-6 ">
         {/* QR Code */}
         <div className="flex flex-col items-center">
-          <div className="bg-white p-4 rounded-2xl border border-gray-100">
+          <div className="bg-white p-4 rounded-2xl border border-gray-100 overflow-hidden">
             {address ? (
               <QRCodeSVG
                 value={address}
@@ -72,16 +67,10 @@ export default function DepositModal({ isOpen, onClose }: DepositModalProps) {
               className="p-3 bg-primary hover:bg-primary/90 text-white rounded-2xl transition-all"
               title={copied ? "Copied!" : "Copy address"}
             >
-              {copied ? (
-                <Check className="w-5 h-5" />
-              ) : (
-                <Copy className="w-5 h-5" />
-              )}
+              {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
             </button>
           </div>
-          <p className="text-xs text-gray-500 text-center">
-            Send SUI tokens to this address
-          </p>
+          <p className="text-xs text-gray-500 text-center">Send SUI tokens to this address</p>
         </div>
 
         {/* Network Badge */}
@@ -96,9 +85,7 @@ export default function DepositModal({ isOpen, onClose }: DepositModalProps) {
 
         {/* Instructions */}
         <div className="bg-gray-50 rounded-2xl p-4 space-y-2">
-          <p className="text-xs font-semibold text-gray-700">
-            How to deposit:
-          </p>
+          <p className="text-xs font-semibold text-gray-700">How to deposit:</p>
           <ul className="text-xs text-gray-600 space-y-1 list-disc list-inside">
             <li>Scan the QR code with your mobile wallet</li>
             <li>Or copy the address and send funds from another wallet</li>

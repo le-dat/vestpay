@@ -18,7 +18,7 @@ export default function ProtectLayout({ children }: { children: React.ReactNode 
 
   return (
     <ProtectedRoute>
-      <div className="flex min-h-screen ">
+      <div className="flex min-h-screen">
         <DashboardSidebar />
         <div className="flex-1 pl-64 flex flex-col">
           <TopBar email={email} />
