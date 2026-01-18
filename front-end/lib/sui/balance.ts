@@ -26,27 +26,18 @@ export interface FormattedCoinBalance {
   usdValue?: number;
 }
 
-/**
- * Get all coins owned by an address
- */
 export async function getAllCoins(
   client: SuiClient,
   address: string
 ): Promise<CoinBalance[]> {
   try {
-    const result = await client.getAllBalances({
-      owner: address,
-    });
-    return result;
+    return await client.getAllBalances({ owner: address });
   } catch (error) {
     console.error('Failed to get all coins:', error);
     return [];
   }
 }
 
-/**
- * Get metadata for a specific coin type
- */
 export async function getCoinMetadata(
   client: SuiClient,
   coinType: string
@@ -68,23 +59,26 @@ export async function getCoinMetadata(
   }
 }
 
-/**
- * Format coin balance with metadata
- */
 export async function getFormattedCoinBalances(
   client: SuiClient,
   address: string
 ): Promise<FormattedCoinBalance[]> {
   const coins = await getAllCoins(client, address);
 
-  const formatted = await Promise.all(
+  return await Promise.all(
     coins.map(async (coin) => {
       const metadata = await getCoinMetadata(client, coin.coinType);
-
       const decimals = metadata?.decimals || 9;
       const rawBalance = BigInt(coin.totalBalance);
       const divisor = BigInt(10 ** decimals);
       const balance = Number(rawBalance) / Number(divisor);
+
+      let iconUrl = metadata?.iconUrl;
+      const isSui = coin.coinType === '0x2::sui::SUI' || metadata?.symbol === 'SUI';
+
+      if (!iconUrl && isSui) {
+        iconUrl = 'https://assets.coingecko.com/coins/images/26375/standard/sui_asset.jpeg';
+      }
 
       return {
         coinType: coin.coinType,
@@ -93,17 +87,12 @@ export async function getFormattedCoinBalances(
         balance: coin.totalBalance,
         balanceFormatted: balance.toFixed(decimals),
         decimals,
-        iconUrl: metadata?.iconUrl,
+        iconUrl,
       };
     })
   );
-
-  return formatted;
 }
 
-/**
- * Format balance from raw amount
- */
 export function formatBalance(
   rawBalance: string | bigint,
   decimals: number = 9
@@ -113,37 +102,25 @@ export function formatBalance(
   const whole = balance / divisor;
   const remainder = balance % divisor;
 
-  if (remainder === BigInt(0)) {
-    return whole.toString();
-  }
+  if (remainder === BigInt(0)) return whole.toString();
 
-  const fractional = remainder.toString().padStart(decimals, '0');
-  const trimmed = fractional.replace(/0+$/, '');
-
-  return `${whole}.${trimmed}`;
+  const fractional = remainder.toString().padStart(decimals, '0').replace(/0+$/, '');
+  return `${whole}.${fractional}`;
 }
 
-/**
- * Parse formatted balance to raw amount
- */
 export function parseBalance(
   formattedBalance: string,
   decimals: number = 9
 ): bigint {
   const [whole, fractional = ''] = formattedBalance.split('.');
   const paddedFractional = fractional.padEnd(decimals, '0').slice(0, decimals);
-  const rawAmount = whole + paddedFractional;
-  return BigInt(rawAmount);
+  return BigInt(whole + paddedFractional);
 }
 
-/**
- * Get total portfolio value in USD (placeholder for future price API integration)
- */
 export async function getPortfolioValue(
   client: SuiClient,
   address: string
 ): Promise<number> {
-  // TODO: Integrate with price API (CoinGecko, etc.)
-  // For now, return 0
+  // TODO: Integrate with price API
   return 0;
 }

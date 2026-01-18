@@ -28,16 +28,19 @@ export default function BalanceCard({ onDeposit, onSend, marketData }: BalanceCa
     const values: Record<string, number> = {};
 
     coins.forEach((coin) => {
-      // Find matching pool to get price
-      // Try to match by symbol
       const pool = marketData.pools.find(
-        (p) => p.symbol.toUpperCase() === coin.symbol.toUpperCase()
+        (p) =>
+          p.coinType === coin.coinType ||
+          p.sCoinType === coin.coinType ||
+          p.symbol.toUpperCase() === coin.symbol.toUpperCase()
       );
 
-      // Default price to 0 if not found
-      // For SUI, we might want to ensure we always have a price if possible, 
-      // but Scallop market data should have it.
-      const price = pool?.coinPrice || 0;
+      let price = pool?.coinPrice || 0;
+
+      if (pool && pool.sCoinType === coin.coinType) {
+        price = price * (pool.conversionRate || 1);
+      }
+
       const balance = parseFloat(coin.balanceFormatted);
       const value = balance * price;
 
@@ -46,14 +49,13 @@ export default function BalanceCard({ onDeposit, onSend, marketData }: BalanceCa
     });
 
     return {
-      totalUSD: formatCurrency(total).replace('$', ''), // Remove $ since we add it in UI
+      totalUSD: formatCurrency(total).replace('$', ''),
       coinValues: values
     };
   }, [coins, marketData]);
 
   return (
     <div className="relative overflow-hidden bg-white border border-gray-100 rounded-[32px] shadow-xs hover:shadow-xl transition-all duration-500 group">
-      {/* Decorative Background Gradient */}
       <div className="absolute top-0 right-0 w-1/2 h-full bg-linear-to-bl from-primary/5 via-transparent to-transparent pointer-events-none" />
 
       <div className="p-8 sm:p-10 relative z-10">
