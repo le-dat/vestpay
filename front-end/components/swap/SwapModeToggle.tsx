@@ -19,7 +19,7 @@ export function SwapModeToggle({ activeMode, onModeChange }: SwapModeToggleProps
           {mode}
           {mode === "Limit" && (
             <span className="text-[9px] py-0.5 px-1.5 bg-[#00d084]/20 text-[#00d084] rounded-full font-black uppercase tracking-wider">
-              Beta
+              Soon
             </span>
           )}
         </button>
