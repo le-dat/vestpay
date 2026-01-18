@@ -37,7 +37,7 @@ export function LendingModal({
     if (config.type !== 'supply') return null;
     const amountNum = parseFloat(amount) || 0;
     const yearlyYield = amountNum * (pool.apy / 100);
-    return yearlyYield.toFixed(4);
+    return yearlyYield.toFixed(3);
   };
 
   const handleContinue = () => {
@@ -109,7 +109,7 @@ export function LendingModal({
                 <p className="text-sm text-gray-500">
                   {config.type === 'supply'
                     ? `Earn ${pool.apy}% APY`
-                    : `${config.maxAmountLabel}: ${config.maxAmount.toFixed(4)} ${pool.coin}`
+                    : `${config.maxAmountLabel}: ${config.maxAmount.toFixed(3)} ${pool.coin}`
                   }
                 </p>
               </div>
@@ -131,7 +131,7 @@ export function LendingModal({
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-600 font-medium">Amount</span>
                     <span className="text-gray-500">
-                      {config.maxAmountLabel}: {config.maxAmount.toFixed(4)} {pool.coin}
+                      {config.maxAmountLabel}: {config.maxAmount.toFixed(3)} {pool.coin}
                     </span>
                   </div>
                   <div className="relative">
@@ -184,7 +184,7 @@ export function LendingModal({
                       <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
                         <span className="text-gray-600 font-medium">Remaining After Withdraw</span>
                         <span className="font-bold text-gray-900">
-                          {Math.max(0, config.maxAmount - (parseFloat(amount) || 0)).toFixed(4)} {pool.coin}
+                          {Math.max(0, config.maxAmount - (parseFloat(amount) || 0)).toFixed(3)} {pool.coin}
                         </span>
                       </div>
                     </>
@@ -196,8 +196,8 @@ export function LendingModal({
                   onClick={handleContinue}
                   disabled={!amount || parseFloat(amount) <= 0 || parseFloat(amount) > config.maxAmount}
                   className={`w-full py-4 font-bold text-lg rounded-xl shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${config.type === 'supply'
-                      ? 'bg-gradient-to-r from-[#00d084] to-[#00a569] hover:from-[#00c07a] hover:to-[#009557] text-white shadow-[#00d084]/20'
-                      : 'bg-gradient-to-r from-gray-700 to-gray-900 hover:from-gray-600 hover:to-gray-800 text-white'
+                    ? 'bg-gradient-to-r from-[#00d084] to-[#00a569] hover:from-[#00c07a] hover:to-[#009557] text-white shadow-[#00d084]/20'
+                    : 'bg-gradient-to-r from-gray-700 to-gray-900 hover:from-gray-600 hover:to-gray-800 text-white'
                     }`}
                 >
                   Continue
@@ -237,15 +237,15 @@ export function LendingModal({
                       <div className="flex items-center justify-between">
                         <span className="text-gray-600">Remaining Supply</span>
                         <span className="font-bold text-gray-900">
-                          {Math.max(0, config.maxAmount - parseFloat(amount)).toFixed(4)} {pool.coin}
+                          {Math.max(0, config.maxAmount - parseFloat(amount)).toFixed(3)} {pool.coin}
                         </span>
                       </div>
                     )}
                   </div>
 
                   <div className={`p-4 border rounded-xl ${config.type === 'supply'
-                      ? 'bg-amber-50 border-amber-200'
-                      : 'bg-blue-50 border-blue-200'
+                    ? 'bg-amber-50 border-amber-200'
+                    : 'bg-blue-50 border-blue-200'
                     }`}>
                     <p className={`text-sm ${config.type === 'supply' ? 'text-amber-800' : 'text-blue-800'
                       }`}>
@@ -270,8 +270,8 @@ export function LendingModal({
                     onClick={handleConfirm}
                     disabled={loading}
                     className={`flex-1 py-4 font-bold text-lg rounded-xl shadow-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2 ${config.type === 'supply'
-                        ? 'bg-gradient-to-r from-[#00d084] to-[#00a569] hover:from-[#00c07a] hover:to-[#009557] text-white shadow-[#00d084]/20'
-                        : 'bg-gradient-to-r from-gray-700 to-gray-900 hover:from-gray-600 hover:to-gray-800 text-white'
+                      ? 'bg-gradient-to-r from-[#00d084] to-[#00a569] hover:from-[#00c07a] hover:to-[#009557] text-white shadow-[#00d084]/20'
+                      : 'bg-gradient-to-r from-gray-700 to-gray-900 hover:from-gray-600 hover:to-gray-800 text-white'
                       }`}
                   >
                     {loading ? (

@@ -5,12 +5,14 @@ import BalanceCard from "@/components/dashboard/BalanceCard";
 import DepositModal from "@/components/wallet/DepositModal";
 import NetworkSwitcher from "@/components/wallet/NetworkSwitcher";
 import SendModal from "@/components/wallet/SendModal";
+import { useScallopMarket } from "@/lib/hooks/useScallopMarket";
 import { motion } from "framer-motion";
 import { useState } from "react";
 
 export default function DashboardPage() {
   const [sendModalOpen, setSendModalOpen] = useState(false);
   const [depositModalOpen, setDepositModalOpen] = useState(false);
+  const { data: marketData } = useScallopMarket();
 
   return (
     <div className="pb-12">
@@ -23,6 +25,7 @@ export default function DashboardPage() {
           <BalanceCard
             onDeposit={() => setDepositModalOpen(true)}
             onSend={() => setSendModalOpen(true)}
+            marketData={marketData || undefined}
           />
         </motion.div>
 
@@ -37,7 +40,9 @@ export default function DashboardPage() {
           </div>
         </motion.div>
       </div>
-      <ActivityTable />
+      <div className="mt-8">
+        <ActivityTable />
+      </div>
 
       <SendModal
         isOpen={sendModalOpen}

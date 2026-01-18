@@ -35,7 +35,10 @@ export function SupplyModal({
     maxAmountLabel: 'Balance',
     buildTransaction: async (params) => {
       const { buildSupplyTransaction } = await import('@/lib/scallop/supply');
-      return buildSupplyTransaction(params);
+      return buildSupplyTransaction({
+        ...params,
+        decimals: pool.decimals,
+      });
     },
   };
 

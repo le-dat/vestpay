@@ -12,6 +12,7 @@ import type { StandardizedQuote } from '@suilend/sdk';
 import type { ISwapTransactionResponse } from '@/lib/suilend';
 import type { CetusToken } from '@/lib/suilend/core/tokens';
 import { fetchCetusTokens } from '@/lib/suilend/core/tokens';
+import { showToast } from '@/components/common/Toast';
 
 interface SwapInterfaceProps {
   walletInfo: {
@@ -158,14 +159,24 @@ export default function SwapInterface({ walletInfo }: SwapInterfaceProps) {
       if (allQuotes.length > 0) {
         setSelectedQuote(allQuotes[0]);
       } else {
-        // Show helpful message instead of error
-        setError('No routes available for this pair. Try a different amount or token pair.');
+        const msg = 'No routes available for this pair. Try a different amount or token pair.';
+        setError(msg);
+        showToast({
+          type: 'error',
+          title: 'No Routes Found',
+          message: msg,
+        });
       }
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Failed to get quotes';
       // Don't show timeout errors to user
       if (!errorMsg.includes('timeout') && !errorMsg.includes('1500ms')) {
         setError(errorMsg);
+        showToast({
+          type: 'error',
+          title: 'Quote Error',
+          message: errorMsg,
+        });
       }
     } finally {
       setLoading(false);
@@ -189,7 +200,13 @@ export default function SwapInterface({ walletInfo }: SwapInterfaceProps) {
         : 'mainnet';
 
       if (currentNetwork !== 'mainnet') {
-        setError('Swap is only available on Mainnet. Please switch network first.');
+        const msg = 'Swap is only available on Mainnet. Please switch network first.';
+        setError(msg);
+        showToast({
+          type: 'error',
+          title: 'Wrong Network',
+          message: msg,
+        });
         setLoading(false);
         return;
       }
@@ -216,7 +233,13 @@ export default function SwapInterface({ walletInfo }: SwapInterfaceProps) {
       console.log('Balance:', balanceAmount.toString(), 'Required:', requiredAmount.toString());
 
       if (balanceAmount < requiredAmount) {
-        setError(`Insufficient ${tokenIn.symbol} balance. You have ${(Number(balanceAmount) / Math.pow(10, tokenIn.decimals)).toFixed(6)} ${tokenIn.symbol}`);
+        const msg = `Insufficient ${tokenIn.symbol} balance. You have ${(Number(balanceAmount) / Math.pow(10, tokenIn.decimals)).toFixed(6)} ${tokenIn.symbol}`;
+        setError(msg);
+        showToast({
+          type: 'error',
+          title: 'Insufficient Balance',
+          message: msg,
+        });
         setLoading(false);
         return;
       }
@@ -281,7 +304,13 @@ export default function SwapInterface({ walletInfo }: SwapInterfaceProps) {
         },
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to build transaction');
+      const errorMsg = err instanceof Error ? err.message : 'Failed to build transaction';
+      setError(errorMsg);
+      showToast({
+        type: 'error',
+        title: 'Transaction Error',
+        message: errorMsg,
+      });
     } finally {
       setLoading(false);
     }

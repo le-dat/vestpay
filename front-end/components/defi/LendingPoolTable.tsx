@@ -159,7 +159,7 @@ export const LendingPoolTable = ({
                     </td>
                     <td className="py-5 text-right">
                       <div className="text-secondary font-bold">
-                        {pool.yourSupply} {pool.coin}
+                        {formatNumber(pool.yourSupply, 3)} {pool.coin}
                       </div>
                       <div className="text-xs font-semibold text-gray-400">
                         ≈ {formatCurrency(pool.yourSupply)} USD

@@ -29,7 +29,10 @@ export function WithdrawModal({
     maxAmountLabel: 'Supplied',
     buildTransaction: async (params) => {
       const { buildWithdrawTransaction } = await import('@/lib/scallop/withdraw');
-      return buildWithdrawTransaction(params);
+      return buildWithdrawTransaction({
+        ...params,
+        decimals: pool.decimals,
+      });
     },
   };
 

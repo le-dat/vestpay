@@ -7,6 +7,7 @@ import {
   getFormattedCoinBalances,
   type FormattedCoinBalance,
 } from '@/lib/sui/balance';
+import { showToast } from '@/components/common/Toast';
 
 export interface WalletData {
   address: string;
@@ -46,11 +47,18 @@ export function useWallet() {
       });
     } catch (error: any) {
       console.error('Failed to load wallet data:', error);
+      const errorMsg = error.message || 'Failed to load wallet data';
       setWalletData((prev) => ({
         ...prev,
         loading: false,
-        error: error.message || 'Failed to load wallet data',
+        error: errorMsg,
       }));
+
+      showToast({
+        type: 'error',
+        title: 'Wallet Error',
+        message: errorMsg,
+      });
     }
   };
 

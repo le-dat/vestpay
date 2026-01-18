@@ -1,3 +1,4 @@
+
 import { Transaction } from '@mysten/sui/transactions';
 import { getScallopSdk, createTimeout } from './sdk';
 import {
@@ -9,15 +10,18 @@ export async function buildWithdrawTransaction(
   params: IWithdrawRequest,
 ): Promise<IWithdrawTransactionResponse> {
   try {
-    const { userAddress, coinName, amount } = params;
+    const { userAddress, coinName, amount, decimals } = params;
     const scallop = await getScallopSdk();
     const scallopClient = await scallop.createScallopClient();
 
+    // Convert decimal amount to raw amount (BigInt)
+    const rawAmount = Math.floor(amount * Math.pow(10, decimals));
+
     const txBlockPromise = scallopClient.withdraw(
       coinName,
-      amount,
+      rawAmount,
       false,
-      userAddress,
+      userAddress
     );
 
     const txBlock = await Promise.race([txBlockPromise, createTimeout(30000)]);

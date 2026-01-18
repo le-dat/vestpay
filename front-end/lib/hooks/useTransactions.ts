@@ -8,6 +8,7 @@ import {
   formatTransactions,
   type TransactionSummary,
 } from '@/lib/sui/history';
+import { showToast } from '@/components/common/Toast';
 
 export interface TransactionsData {
   transactions: TransactionSummary[];
@@ -56,7 +57,14 @@ export function useTransactions(limit: number = 20): TransactionsData {
         setHasNextPage(result.hasNextPage);
       } catch (error: any) {
         console.error('Failed to load transactions:', error);
-        setError(error.message || 'Failed to load transactions');
+        const errorMsg = error.message || 'Failed to load transactions';
+        setError(errorMsg);
+
+        showToast({
+          type: 'error',
+          title: 'Transaction History Error',
+          message: errorMsg,
+        });
       } finally {
         setLoading(false);
       }

@@ -1,9 +1,10 @@
 import { Transaction } from '@mysten/sui/transactions';
 
-export interface ISupplyRequest{
+export interface ISupplyRequest {
   userAddress: string;
   coinName: string;
   amount: number;
+  decimals: number;
 }
 
 export interface ISupplyTransactionResponse {
@@ -14,6 +15,7 @@ export interface IWithdrawRequest {
   userAddress: string;
   coinName: string;
   amount: number;
+  decimals: number;
 }
 
 export interface IWithdrawTransactionResponse {

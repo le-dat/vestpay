@@ -3,14 +3,18 @@ import { ISupplyRequest, ISupplyTransactionResponse } from './types';
 
 export async function buildSupplyTransaction(params: ISupplyRequest): Promise<ISupplyTransactionResponse> {
   try {
-    const { userAddress, coinName, amount } = params;
+    const { userAddress, coinName, amount, decimals } = params;
     const scallop = await getScallopSdk();
     const scallopClient = await scallop.createScallopClient();
 
+    // Convert decimal amount to raw amount (BigInt)
+    const rawAmount = Math.floor(amount * Math.pow(10, decimals));
+
     const txBlockPromise = scallopClient.deposit(
       coinName,
-      amount,
+      rawAmount,
       false,
+      userAddress 
     );
 
     const txBlock = await Promise.race([txBlockPromise, createTimeout(30000)]);
@@ -26,5 +30,3 @@ export async function buildSupplyTransaction(params: ISupplyRequest): Promise<IS
     );
   }
 }
-
-  

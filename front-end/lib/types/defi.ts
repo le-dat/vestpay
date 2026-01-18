@@ -11,6 +11,7 @@ export interface LendingPool {
   utilizationRate: number;
   apy: number;
   badge?: string;
+  decimals: number;
 }
 
 export interface ScallopPool {
@@ -31,6 +32,7 @@ export interface ScallopPool {
   utilizationRate: number;
   supplyAmount: number;
   borrowAmount: number;
+  conversionRate?: number; // sSUI to SUI conversion rate
 }
 
 export interface ScallopCollateral {
@@ -67,7 +69,6 @@ export interface TabContentProps {
   loading?: boolean;
 }
 
-// Lending Modal Types
 export type LendingModalType = 'supply' | 'withdraw';
 
 export interface LendingModalConfig {

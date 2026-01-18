@@ -24,18 +24,37 @@ export const LendingTabContent = ({
   const scallopPools: LendingPool[] =
     marketData?.pools.map((pool: ScallopPool) => {
       const metadata = getCoinMetadata(pool.symbol);
+
+      const sCoinBalance = walletCoins.find(
+        (coin) => coin.coinType.toLowerCase() === pool.sCoinType.toLowerCase()
+      );
+
+      const sSuiAmount = sCoinBalance
+        ? parseFloat(sCoinBalance.balanceFormatted)
+        : 0;
+
+      const conversionRate = pool.conversionRate || 1;
+      const yourSupply = sSuiAmount * conversionRate;
+
       return {
         coin: pool.symbol,
         icon: metadata.icon,
         badge: metadata.badge,
         price: pool.coinPrice,
-        yourSupply: 0,
+        yourSupply,
         totalSupply: pool.supplyCoin,
         totalBorrow: pool.borrowCoin,
         utilizationRate: Math.round(pool.utilizationRate * 100),
         apy: Number((pool.supplyApy * 100).toFixed(2)),
+        decimals: pool.coinDecimal,
       };
-    }) || [];
+    })
+      .sort((a, b) => {
+        // Sort by yourSupply first (descending), then by APY (descending)
+        if (a.yourSupply > 0 && b.yourSupply === 0) return -1;
+        if (a.yourSupply === 0 && b.yourSupply > 0) return 1;
+        return b.apy - a.apy;
+      }) || [];
 
   return (
     <>
@@ -45,11 +64,10 @@ export const LendingTabContent = ({
             <button
               key={tab.id}
               onClick={() => setActiveSubTab(tab.id)}
-              className={`pb-2 transition-colors cursor-pointer font-medium ${
-                activeSubTab === tab.id
-                  ? "text-gray-900 border-b-2 border-primary"
-                  : "text-gray-500 hover:text-gray-900"
-              }`}
+              className={`pb-2 transition-colors cursor-pointer font-medium ${activeSubTab === tab.id
+                ? "text-gray-900 border-b-2 border-primary"
+                : "text-gray-500 hover:text-gray-900"
+                }`}
             >
               {tab.label}
             </button>
@@ -63,7 +81,7 @@ export const LendingTabContent = ({
           walletAddress={walletAddress}
           walletCoins={walletCoins}
           onRefresh={onRefresh}
-          loading={loading} 
+          loading={loading}
         />
       )}
     </>
