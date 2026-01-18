@@ -1,4 +1,5 @@
-import { getScallopSdk, client, createTimeout } from './sdk';
+import { Transaction } from '@mysten/sui/transactions';
+import { getScallopSdk, createTimeout } from './sdk';
 import {
   IWithdrawRequest,
   IWithdrawTransactionResponse,
@@ -8,25 +9,22 @@ export async function buildWithdrawTransaction(
   params: IWithdrawRequest,
 ): Promise<IWithdrawTransactionResponse> {
   try {
+    const { userAddress, coinName, amount } = params;
     const scallop = await getScallopSdk();
-
     const scallopClient = await scallop.createScallopClient();
-    const txBlockPromise = await scallopClient.withdraw(
-      params.coinName,
-      params.amount,
+
+    const txBlockPromise = scallopClient.withdraw(
+      coinName,
+      amount,
       false,
-      params.userAddress,
+      userAddress,
     );
 
     const txBlock = await Promise.race([txBlockPromise, createTimeout(30000)]);
-    const txBytes = await (
-      txBlock as {
-        build: (options: { client: typeof client }) => Promise<Uint8Array>;
-      }
-    ).build({ client });
+    (txBlock as any).setSender(userAddress);
 
     return {
-      txBytes: Buffer.from(txBytes).toString('base64'),
+      transaction: txBlock as Transaction,
     };
   } catch (error) {
     console.error('Build withdraw transaction failed:', error);
