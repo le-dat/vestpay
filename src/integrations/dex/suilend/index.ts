@@ -5,9 +5,13 @@ export { buildSwap, buildSwapBytes } from "./swap";
 export { executeSwapWithPasskey, prepareSwapForSigning, type ExecuteResult } from "./execute";
 
 // Core utilities
-export { getSwapQuotes } from "./quote";
-export { buildSwapTransaction, createTokenObject } from "./transaction";
-export { prepareTransactionForSigning } from "./signing";
+export { getSwapQuotes, extractRawAmountOut } from "./quote";
+export {
+  buildSwapTransaction,
+  buildSwapTransactionFromQuote,
+  createTokenObject,
+} from "./transaction";
+export { prepareTransactionForSigning, signAndExecuteSwapTransaction } from "./signing";
 
 // SDK & Client
 export { getSuilendSdk, client } from "./sdk";
