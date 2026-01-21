@@ -1,4 +1,4 @@
-import { Bell, Globe } from "lucide-react";
+// import { Bell, Globe } from "lucide-react";
 
 interface TopBarProps {
   email: string | undefined;

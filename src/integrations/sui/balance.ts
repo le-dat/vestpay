@@ -1,4 +1,4 @@
-import { SuiClient } from '@mysten/sui/client';
+import { SuiClient } from "@mysten/sui/client";
 
 export interface CoinBalance {
   coinType: string;
@@ -26,21 +26,18 @@ export interface FormattedCoinBalance {
   usdValue?: number;
 }
 
-export async function getAllCoins(
-  client: SuiClient,
-  address: string
-): Promise<CoinBalance[]> {
+export async function getAllCoins(client: SuiClient, address: string): Promise<CoinBalance[]> {
   try {
     return await client.getAllBalances({ owner: address });
   } catch (error) {
-    console.error('Failed to get all coins:', error);
+    console.error("Failed to get all coins:", error);
     return [];
   }
 }
 
 export async function getCoinMetadata(
   client: SuiClient,
-  coinType: string
+  coinType: string,
 ): Promise<CoinMetadata | null> {
   try {
     const metadata = await client.getCoinMetadata({ coinType });
@@ -61,7 +58,7 @@ export async function getCoinMetadata(
 
 export async function getFormattedCoinBalances(
   client: SuiClient,
-  address: string
+  address: string,
 ): Promise<FormattedCoinBalance[]> {
   const coins = await getAllCoins(client, address);
 
@@ -74,29 +71,26 @@ export async function getFormattedCoinBalances(
       const balance = Number(rawBalance) / Number(divisor);
 
       let iconUrl = metadata?.iconUrl;
-      const isSui = coin.coinType === '0x2::sui::SUI' || metadata?.symbol === 'SUI';
+      const isSui = coin.coinType === "0x2::sui::SUI" || metadata?.symbol === "SUI";
 
       if (!iconUrl && isSui) {
-        iconUrl = 'https://assets.coingecko.com/coins/images/26375/standard/sui_asset.jpeg';
+        iconUrl = "https://assets.coingecko.com/coins/images/26375/standard/sui_asset.jpeg";
       }
 
       return {
         coinType: coin.coinType,
-        symbol: metadata?.symbol || 'Unknown',
-        name: metadata?.name || 'Unknown Token',
+        symbol: metadata?.symbol || "Unknown",
+        name: metadata?.name || "Unknown Token",
         balance: coin.totalBalance,
         balanceFormatted: balance.toFixed(decimals),
         decimals,
         iconUrl,
       };
-    })
+    }),
   );
 }
 
-export function formatBalance(
-  rawBalance: string | bigint,
-  decimals: number = 9
-): string {
+export function formatBalance(rawBalance: string | bigint, decimals: number = 9): string {
   const balance = BigInt(rawBalance);
   const divisor = BigInt(10 ** decimals);
   const whole = balance / divisor;
@@ -104,23 +98,17 @@ export function formatBalance(
 
   if (remainder === BigInt(0)) return whole.toString();
 
-  const fractional = remainder.toString().padStart(decimals, '0').replace(/0+$/, '');
+  const fractional = remainder.toString().padStart(decimals, "0").replace(/0+$/, "");
   return `${whole}.${fractional}`;
 }
 
-export function parseBalance(
-  formattedBalance: string,
-  decimals: number = 9
-): bigint {
-  const [whole, fractional = ''] = formattedBalance.split('.');
-  const paddedFractional = fractional.padEnd(decimals, '0').slice(0, decimals);
+export function parseBalance(formattedBalance: string, decimals: number = 9): bigint {
+  const [whole, fractional = ""] = formattedBalance.split(".");
+  const paddedFractional = fractional.padEnd(decimals, "0").slice(0, decimals);
   return BigInt(whole + paddedFractional);
 }
 
-export async function getPortfolioValue(
-  client: SuiClient,
-  address: string
-): Promise<number> {
+export async function getPortfolioValue(_client: SuiClient, _address: string): Promise<number> {
   // TODO: Integrate with price API
   return 0;
 }

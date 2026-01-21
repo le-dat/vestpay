@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronDown, RefreshCw, History, ArrowRight } from "lucide-react";
-import { useTransactions } from "@/features/wallet/hooks";
+import { useTransactions } from "@/features/wallet";
 import { useRefresh } from "@/shared/hooks";
 import TransactionRow from "./TransactionRow";
 import { useState } from "react";

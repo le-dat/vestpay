@@ -13,7 +13,6 @@ interface ModalProps {
 }
 
 export default function Modal({ isOpen, onClose, title, children }: ModalProps) {
-  // Handle ESC key press
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape" && isOpen) {
@@ -25,7 +24,6 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
     return () => document.removeEventListener("keydown", handleEscape);
   }, [isOpen, onClose]);
 
-  // Prevent body scroll when modal is open
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -44,7 +42,6 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -54,7 +51,6 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
             className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
           />
 
-          {/* Modal */}
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
@@ -64,7 +60,6 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
               onClick={(e) => e.stopPropagation()}
               className="bg-white border border-gray-100 rounded-[32px] shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto custom-scrollbar"
             >
-              {/* Header */}
               <div className="flex items-center justify-between p-8 pb-6">
                 <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
                 <button
@@ -76,13 +71,12 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
                 </button>
               </div>
 
-              {/* Content */}
               <div className="px-8 pb-8">{children}</div>
             </motion.div>
           </div>
         </>
       )}
     </AnimatePresence>,
-    document.body
+    document.body,
   );
 }

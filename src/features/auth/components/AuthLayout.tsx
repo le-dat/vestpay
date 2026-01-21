@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Logo from "@/shared/components/branding";
+import { Logo } from "@/shared/components/branding";
 import { ROUTES } from "@/shared/utils";
 
 interface AuthLayoutProps {
@@ -9,7 +9,7 @@ interface AuthLayoutProps {
   sidebarContent: React.ReactNode;
 }
 
-export default function AuthLayout({ children, sidebarContent }: AuthLayoutProps) {
+export function AuthLayout({ children, sidebarContent }: AuthLayoutProps) {
   return (
     <main className="min-h-screen flex flex-col md:flex-row bg-background overflow-hidden font-sans">
       {/* Sidebar Section */}

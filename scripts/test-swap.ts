@@ -1,4 +1,4 @@
-import { buildSwap } from '../lib/suilend';
+import { buildSwap } from '../src/integrations/dex/suilend';
 
 const COIN_TYPES = {
   SUI: '0x2::sui::SUI',

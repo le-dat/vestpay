@@ -1,13 +1,10 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useNetwork } from '@/shared/contexts';
-import { getCachedWalletInfo } from '@/integrations/sui/passkey';
-import {
-  getFormattedCoinBalances,
-  type FormattedCoinBalance,
-} from '@/integrations/sui/balance';
-import { showToast } from '@/shared/components/feedback';
+import { useState, useEffect, useCallback } from "react";
+import { useNetwork } from "@/shared/contexts";
+import { getCachedWalletInfo } from "@/integrations/sui/passkey";
+import { getFormattedCoinBalances, type FormattedCoinBalance } from "@/integrations/sui/balance";
+import { showToast } from "@/shared/components/feedback";
 
 export interface WalletData {
   address: string;
@@ -20,20 +17,20 @@ export interface WalletData {
 export function useWallet() {
   const { client, network } = useNetwork();
   const [walletData, setWalletData] = useState<WalletData>({
-    address: '',
-    email: '',
+    address: "",
+    email: "",
     coins: [],
     loading: true,
     error: null,
   });
 
-  const loadWalletData = async () => {
+  const loadWalletData = useCallback(async () => {
     try {
       setWalletData((prev) => ({ ...prev, loading: true, error: null }));
 
       const walletInfo = getCachedWalletInfo();
       if (!walletInfo) {
-        throw new Error('No wallet found');
+        throw new Error("No wallet found");
       }
 
       const coins = await getFormattedCoinBalances(client, walletInfo.address);
@@ -45,9 +42,9 @@ export function useWallet() {
         loading: false,
         error: null,
       });
-    } catch (error: any) {
-      console.error('Failed to load wallet data:', error);
-      const errorMsg = error.message || 'Failed to load wallet data';
+    } catch (error: unknown) {
+      console.error("Failed to load wallet data:", error);
+      const errorMsg = error instanceof Error ? error.message : "Failed to load wallet data";
       setWalletData((prev) => ({
         ...prev,
         loading: false,
@@ -55,16 +52,16 @@ export function useWallet() {
       }));
 
       showToast({
-        type: 'error',
-        title: 'Wallet Error',
+        type: "error",
+        title: "Wallet Error",
         message: errorMsg,
       });
     }
-  };
+  }, [client]);
 
   useEffect(() => {
     loadWalletData();
-  }, [network]);
+  }, [network, loadWalletData]);
 
   const refresh = () => {
     loadWalletData();

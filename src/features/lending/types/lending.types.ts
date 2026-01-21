@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export type MainTab = "lending" | "borrowing" | "staking" | "swap";
 export type SubTab = "lending-pools" | "scoin-pools";
 

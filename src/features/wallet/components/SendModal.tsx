@@ -3,11 +3,11 @@
 
 import { useState } from "react";
 import { ArrowUpRight } from "lucide-react";
-import Modal from "@/shared/components/ui";
+import { Modal } from "@/shared/components/ui";
 import { useNetwork } from "@/shared/contexts";
 import { sendSui } from "@/integrations/sui/transactions";
 import { getKeypairForSigning } from "@/integrations/sui/signing";
-import { useWallet } from "@/features/wallet/hooks";
+import { useWallet } from "@/features/wallet";
 
 interface SendModalProps {
   isOpen: boolean;

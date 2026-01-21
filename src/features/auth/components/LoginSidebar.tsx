@@ -2,9 +2,9 @@
 
 import { motion } from "framer-motion";
 import { Check, X } from "lucide-react";
-import FloatingDots from "./floating-dots";
+import { FloatingDots } from "./FloatingDots";
 
-export default function LoginSidebar() {
+export function LoginSidebar() {
   return (
     <>
       <FloatingDots count={30} opacity={0.3} />

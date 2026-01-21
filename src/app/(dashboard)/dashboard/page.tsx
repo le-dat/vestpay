@@ -1,11 +1,8 @@
 "use client";
 
-import ActivityTable from "@/components/dashboard/ActivityTable";
-import BalanceCard from "@/components/dashboard/BalanceCard";
-import DepositModal from "@/components/wallet/DepositModal";
-import NetworkSwitcher from "@/components/wallet/NetworkSwitcher";
-import SendModal from "@/components/wallet/SendModal";
-import { useScallopMarket } from "@/lib/hooks/useScallopMarket";
+import { ActivityTable, BalanceCard } from "@/features/dashboard";
+import { DepositModal, NetworkSwitcher, SendModal } from "@/features/wallet";
+import { useScallopMarket } from "@/features/lending";
 import { motion } from "framer-motion";
 import { useState } from "react";
 

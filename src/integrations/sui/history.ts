@@ -1,11 +1,11 @@
-import { SuiClient } from '@mysten/sui/client';
-import { SuiTransactionBlockResponse } from '@mysten/sui/client';
+import { SuiClient } from "@mysten/sui/client";
+import { SuiTransactionBlockResponse } from "@mysten/sui/client";
 
 export interface TransactionSummary {
   digest: string;
   timestamp: number;
-  type: 'sent' | 'received' | 'contract' | 'unknown';
-  status: 'success' | 'failed';
+  type: "sent" | "received" | "contract" | "unknown";
+  status: "success" | "failed";
   amount?: string;
   amountFormatted?: string;
   coinType?: string;
@@ -23,7 +23,7 @@ export async function getTransactionHistory(
   client: SuiClient,
   address: string,
   limit: number = 20,
-  cursor?: string
+  _cursor?: string,
 ): Promise<{
   data: SuiTransactionBlockResponse[];
   nextCursor: string | null;
@@ -40,7 +40,7 @@ export async function getTransactionHistory(
           showEvents: true,
           showBalanceChanges: true,
         },
-        order: 'descending',
+        order: "descending",
         limit,
       }),
       client.queryTransactionBlocks({
@@ -51,15 +51,13 @@ export async function getTransactionHistory(
           showEvents: true,
           showBalanceChanges: true,
         },
-        order: 'descending',
+        order: "descending",
         limit,
       }),
     ]);
 
-    // Merge and sort by timestamp
     const allTransactions = [...sent.data, ...received.data];
 
-    // Sort by timestamp descending
     allTransactions.sort((a, b) => {
       const timeA = a.timestampMs ? parseInt(a.timestampMs) : 0;
       const timeB = b.timestampMs ? parseInt(b.timestampMs) : 0;
@@ -68,10 +66,9 @@ export async function getTransactionHistory(
 
     // Remove duplicates (as some might be sent and received by same address)
     const uniqueTransactions = Array.from(
-      new Map(allTransactions.map((tx) => [tx.digest, tx])).values()
+      new Map(allTransactions.map((tx) => [tx.digest, tx])).values(),
     );
 
-    // Limit to the requested number
     const finalData = uniqueTransactions.slice(0, limit);
 
     return {
@@ -80,7 +77,7 @@ export async function getTransactionHistory(
       hasNextPage: sent.hasNextPage || received.hasNextPage,
     };
   } catch (error) {
-    console.error('Failed to get transaction history:', error);
+    console.error("Failed to get transaction history:", error);
     return {
       data: [],
       nextCursor: null,
@@ -94,7 +91,7 @@ export async function getTransactionHistory(
  */
 export async function getTransactionDetails(
   client: SuiClient,
-  digest: string
+  digest: string,
 ): Promise<SuiTransactionBlockResponse | null> {
   try {
     const result = await client.getTransactionBlock({
@@ -109,7 +106,7 @@ export async function getTransactionDetails(
     });
     return result;
   } catch (error) {
-    console.error('Failed to get transaction details:', error);
+    console.error("Failed to get transaction details:", error);
     return null;
   }
 }
@@ -119,19 +116,22 @@ export async function getTransactionDetails(
  */
 export function formatTransaction(
   tx: SuiTransactionBlockResponse,
-  userAddress: string
+  userAddress: string,
 ): TransactionSummary {
   const digest = tx.digest;
   const timestamp = tx.timestampMs ? parseInt(tx.timestampMs) : Date.now();
-  const status = tx.effects?.status?.status === 'success' ? 'success' : 'failed';
+  const status = tx.effects?.status?.status === "success" ? "success" : "failed";
 
-  // Extract balance changes
   const balanceChanges = tx.balanceChanges || [];
   const userBalanceChange = balanceChanges.find(
-    (bc) => bc.owner === userAddress || (typeof bc.owner === 'object' && 'AddressOwner' in bc.owner && bc.owner.AddressOwner === userAddress)
+    (bc) =>
+      bc.owner === userAddress ||
+      (typeof bc.owner === "object" &&
+        "AddressOwner" in bc.owner &&
+        bc.owner.AddressOwner === userAddress),
   );
 
-  let type: TransactionSummary['type'] = 'unknown';
+  let type: TransactionSummary["type"] = "unknown";
   let amount: string | undefined;
   let amountFormatted: string | undefined;
   let coinType: string | undefined;
@@ -144,50 +144,55 @@ export function formatTransaction(
     coinType = userBalanceChange.coinType;
 
     // Extract symbol from coinType (e.g., "0x2::sui::SUI" -> "SUI")
-    symbol = coinType.split('::').pop()?.toUpperCase() || 'UNKNOWN';
+    symbol = coinType.split("::").pop()?.toUpperCase() || "UNKNOWN";
 
     if (changeAmount < 0) {
-      type = 'sent';
+      type = "sent";
       amount = (-changeAmount).toString();
       from = userAddress;
-      // Try to find recipient from balance changes
       const recipientChange = balanceChanges.find((bc) => BigInt(bc.amount) > 0);
-      if (recipientChange && typeof recipientChange.owner === 'object' && 'AddressOwner' in recipientChange.owner) {
+      if (
+        recipientChange &&
+        typeof recipientChange.owner === "object" &&
+        "AddressOwner" in recipientChange.owner
+      ) {
         to = recipientChange.owner.AddressOwner;
       }
     } else if (changeAmount > 0) {
-      type = 'received';
+      type = "received";
       amount = changeAmount.toString();
       to = userAddress;
-      // Try to find sender from balance changes
       const senderChange = balanceChanges.find((bc) => BigInt(bc.amount) < 0);
-      if (senderChange && typeof senderChange.owner === 'object' && 'AddressOwner' in senderChange.owner) {
+      if (
+        senderChange &&
+        typeof senderChange.owner === "object" &&
+        "AddressOwner" in senderChange.owner
+      ) {
         from = senderChange.owner.AddressOwner;
       }
     }
 
     // Format amount (assuming 9 decimals for SUI, adjust as needed)
     if (amount) {
-      const decimals = coinType?.includes('::sui::SUI') ? 9 : 9;
+      const decimals = coinType?.includes("::sui::SUI") ? 9 : 9;
       const amountBigInt = BigInt(amount);
       const divisor = BigInt(10 ** decimals);
       const amountNum = Number(amountBigInt) / Number(divisor);
-      amountFormatted = amountNum.toFixed(4).replace(/\.?0+$/, '');
+      amountFormatted = amountNum.toFixed(4).replace(/\.?0+$/, "");
     }
   }
 
-  // Check if it's a contract interaction
   if (!userBalanceChange || balanceChanges.length > 2) {
-    type = 'contract';
+    type = "contract";
   }
 
-  // Get gas fee
   const gasUsed = tx.effects?.gasUsed;
   let gasFee: string | undefined;
   let gasFeeFormatted: string | undefined;
 
   if (gasUsed) {
-    const totalGas = BigInt(gasUsed.computationCost) + BigInt(gasUsed.storageCost) - BigInt(gasUsed.storageRebate);
+    const totalGas =
+      BigInt(gasUsed.computationCost) + BigInt(gasUsed.storageCost) - BigInt(gasUsed.storageRebate);
     gasFee = totalGas.toString();
     const gasFeeNum = Number(totalGas) / 1_000_000_000;
     gasFeeFormatted = gasFeeNum.toFixed(6);
@@ -214,7 +219,7 @@ export function formatTransaction(
  */
 export function formatTransactions(
   transactions: SuiTransactionBlockResponse[],
-  userAddress: string
+  userAddress: string,
 ): TransactionSummary[] {
   return transactions.map((tx) => formatTransaction(tx, userAddress));
 }
@@ -224,11 +229,9 @@ export function formatTransactions(
  */
 export function getTransactionExplorerUrl(
   digest: string,
-  network: 'testnet' | 'devnet' | 'mainnet' = 'testnet'
+  network: "testnet" | "devnet" | "mainnet" = "testnet",
 ): string {
   const baseUrl =
-    network === 'mainnet'
-      ? 'https://suiscan.xyz/mainnet'
-      : `https://suiscan.xyz/${network}`;
+    network === "mainnet" ? "https://suiscan.xyz/mainnet" : `https://suiscan.xyz/${network}`;
   return `${baseUrl}/tx/${digest}`;
 }

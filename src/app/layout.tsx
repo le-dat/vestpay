@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Archivo } from "next/font/google";
 import "./globals.css";
-import { NetworkProvider } from "@/lib/context/NetworkContext";
-import { ToastContainer } from "@/components/common/Toast";
+import { NetworkProvider } from "@/shared/contexts";
+import { ToastContainer } from "@/shared/components/feedback";
 
 const archivo = Archivo({ subsets: ["latin"], variable: "--font-archivo" });
 

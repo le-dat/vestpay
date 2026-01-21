@@ -15,11 +15,7 @@ export default function NetworkSwitcher() {
   });
   const [copied, setCopied] = useState(false);
 
-  const networks = [
-    // { value: "testnet", label: "Testnet", color: "bg-green-500" },
-    // { value: "devnet", label: "Devnet", color: "bg-yellow-500" },
-    { value: "mainnet", label: "Mainnet", color: "bg-red-500" },
-  ] as const;
+  const networks = [{ value: "mainnet", label: "Mainnet", color: "bg-red-500" }] as const;
 
   const formatAddress = (address: string) => {
     if (!address) return "";
@@ -69,34 +65,6 @@ export default function NetworkSwitcher() {
           </div>
         </div>
       )}
-
-      {/* <div className="space-y-2">
-        {networks.map((net) => (
-          <button
-            key={net.value}
-            onClick={() => setNetwork(net.value)}
-            className={`w-full flex items-center justify-between px-4 py-3.5 rounded-2xl font-bold transition-all border-2 ${
-              network === net.value
-                ? "bg-primary/5 border-primary/20 text-secondary"
-                : "bg-white border-gray-50 text-gray-400 hover:border-gray-100 hover:bg-gray-50/50"
-            }`}
-          >
-            <div className="flex items-center gap-3">
-              <div
-                className={`w-2.5 h-2.5 rounded-full ${net.color} ${
-                  network === net.value ? "ring-4 ring-red-500/20" : ""
-                }`}
-              />
-              <span className="text-sm">{net.label}</span>
-            </div>
-            {network === net.value && (
-              <div className="px-2 py-0.5 bg-primary rounded-md text-[9px] text-secondary font-black uppercase">
-                Active
-              </div>
-            )}
-          </button>
-        ))}
-      </div> */}
     </div>
   );
 }

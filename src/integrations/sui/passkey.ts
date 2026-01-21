@@ -1,13 +1,14 @@
+import { PublicKey } from "@mysten/sui/cryptography";
 import {
   PasskeyKeypair,
   BrowserPasskeyProvider,
   type BrowserPasswordProviderOptions,
-} from '@mysten/sui/keypairs/passkey';
-import { cacheKeypairInMemory, getCachedKeypairFromMemory } from './keypair-cache';
-import { clearKeypairCache } from './keypair-cache';
+} from "@mysten/sui/keypairs/passkey";
+import { cacheKeypairInMemory, getCachedKeypairFromMemory } from "./keypair-cache";
+import { clearKeypairCache } from "./keypair-cache";
 
-const RP_NAME = process.env.NEXT_PUBLIC_RP_NAME || 'Passkey Sui Wallet';
-const RP_ID = process.env.NEXT_PUBLIC_RP_ID || 'localhost';
+const RP_NAME = process.env.NEXT_PUBLIC_RP_NAME || "Passkey Sui Wallet";
+const RP_ID = process.env.NEXT_PUBLIC_RP_ID || "localhost";
 
 export async function createPasskeyWallet(email: string): Promise<{
   keypair: PasskeyKeypair;
@@ -18,9 +19,9 @@ export async function createPasskeyWallet(email: string): Promise<{
     rpName: RP_NAME,
     rpId: RP_ID,
     authenticatorSelection: {
-      authenticatorAttachment: 'cross-platform', // Use device authenticator (Touch ID, Face ID, Windows Hello)
+      authenticatorAttachment: "cross-platform", // Use device authenticator (Touch ID, Face ID, Windows Hello)
       requireResidentKey: true,
-      userVerification: 'required',
+      userVerification: "required",
     },
   } as BrowserPasswordProviderOptions);
 
@@ -67,19 +68,19 @@ export async function recoverPasskeyWallet(): Promise<{
         rpName: RP_NAME,
         rpId: RP_ID,
         authenticatorSelection: {
-          authenticatorAttachment: 'cross-platform',
+          authenticatorAttachment: "cross-platform",
           requireResidentKey: true,
-          userVerification: 'required',
+          userVerification: "required",
         },
       } as BrowserPasswordProviderOptions);
 
-      const testMessage = new TextEncoder().encode('Sui Wallet Login');
+      const testMessage = new TextEncoder().encode("Sui Wallet Login");
       const possiblePks = await PasskeyKeypair.signAndRecover(provider, testMessage);
 
-      const matchedPk = possiblePks.find(pk => pk.toBase64() === storedWallet.publicKey);
+      const matchedPk = possiblePks.find((pk) => pk.toBase64() === storedWallet.publicKey);
 
       if (!matchedPk) {
-        throw new Error('Stored public key does not match passkey');
+        throw new Error("Stored public key does not match passkey");
       }
 
       const keypair = new PasskeyKeypair(matchedPk.toRawBytes(), provider);
@@ -92,7 +93,7 @@ export async function recoverPasskeyWallet(): Promise<{
         address: storedWallet.address,
       };
     } catch (error) {
-      console.error('Failed to recover with stored key, falling back to double-signature:', error);
+      console.error("Failed to recover with stored key, falling back to double-signature:", error);
     }
   }
 
@@ -101,14 +102,14 @@ export async function recoverPasskeyWallet(): Promise<{
       rpName: RP_NAME,
       rpId: RP_ID,
       authenticatorSelection: {
-        authenticatorAttachment: 'cross-platform',
+        authenticatorAttachment: "cross-platform",
         requireResidentKey: true,
-        userVerification: 'required',
+        userVerification: "required",
       },
     } as BrowserPasswordProviderOptions);
 
-    const message1 = new TextEncoder().encode('Sui Wallet Recovery Message 1');
-    const message2 = new TextEncoder().encode('Sui Wallet Recovery Message 2');
+    const message1 = new TextEncoder().encode("Sui Wallet Recovery Message 1");
+    const message2 = new TextEncoder().encode("Sui Wallet Recovery Message 2");
 
     const possiblePks1 = await PasskeyKeypair.signAndRecover(provider, message1);
     const possiblePks2 = await PasskeyKeypair.signAndRecover(provider, message2);
@@ -116,13 +117,13 @@ export async function recoverPasskeyWallet(): Promise<{
     const commonPk = findCommonPublicKey(possiblePks1, possiblePks2);
 
     if (!commonPk) {
-      throw new Error('Could not recover public key');
+      throw new Error("Could not recover public key");
     }
 
     const keypair = new PasskeyKeypair(commonPk.toRawBytes(), provider);
     const address = commonPk.toSuiAddress();
 
-    const email = sessionStorage.getItem('sui_wallet_email') || 'unknown';
+    const email = sessionStorage.getItem("sui_wallet_email") || "unknown";
     storePublicKeyPersistently(email, commonPk.toBase64(), address);
 
     cacheKeypairInMemory(keypair);
@@ -133,15 +134,15 @@ export async function recoverPasskeyWallet(): Promise<{
       address,
     };
   } catch (error) {
-    console.error('Failed to recover passkey wallet:', error);
+    console.error("Failed to recover passkey wallet:", error);
     return null;
   }
 }
 
 function findCommonPublicKey(
-  possiblePks1: any[],
-  possiblePks2: any[]
-): any | null {
+  possiblePks1: PublicKey[],
+  possiblePks2: PublicKey[],
+): PublicKey | null {
   for (const pk1 of possiblePks1) {
     for (const pk2 of possiblePks2) {
       if (pk1.toBase64() === pk2.toBase64()) {
@@ -159,30 +160,27 @@ function findCommonPublicKey(
 export function storePublicKeyPersistently(
   email: string,
   publicKey: string,
-  address: string
+  address: string,
 ): void {
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     const walletData = {
       email,
       publicKey,
       address,
       timestamp: Date.now(),
     };
-    localStorage.setItem('sui_passkey_wallet', JSON.stringify(walletData));
+    localStorage.setItem("sui_passkey_wallet", JSON.stringify(walletData));
   }
 }
 
-/**
- * Get stored public key from localStorage
- */
 function getStoredPublicKey(): {
   email: string;
   publicKey: string;
   address: string;
 } | null {
-  if (typeof window === 'undefined') return null;
+  if (typeof window === "undefined") return null;
 
-  const stored = localStorage.getItem('sui_passkey_wallet');
+  const stored = localStorage.getItem("sui_passkey_wallet");
   if (!stored) return null;
 
   try {
@@ -192,31 +190,25 @@ function getStoredPublicKey(): {
   }
 }
 
-/**
- * Cache wallet info in sessionStorage
- */
 export function cacheKeypair(
   email: string,
-  walletInfo: { publicKey: string; address: string }
+  walletInfo: { publicKey: string; address: string },
 ): void {
-  if (typeof window !== 'undefined') {
-    sessionStorage.setItem('sui_wallet_email', email);
-    sessionStorage.setItem('sui_wallet_info', JSON.stringify(walletInfo));
+  if (typeof window !== "undefined") {
+    sessionStorage.setItem("sui_wallet_email", email);
+    sessionStorage.setItem("sui_wallet_info", JSON.stringify(walletInfo));
   }
 }
 
-/**
- * Get cached wallet info
- */
 export function getCachedWalletInfo(): {
   email: string;
   publicKey: string;
   address: string;
 } | null {
-  if (typeof window === 'undefined') return null;
+  if (typeof window === "undefined") return null;
 
-  const email = sessionStorage.getItem('sui_wallet_email');
-  const walletInfoStr = sessionStorage.getItem('sui_wallet_info');
+  const email = sessionStorage.getItem("sui_wallet_email");
+  const walletInfoStr = sessionStorage.getItem("sui_wallet_info");
 
   if (!email || !walletInfoStr) return null;
 
@@ -231,21 +223,15 @@ export function getCachedWalletInfo(): {
   }
 }
 
-/**
- * Clear cached wallet info (logout)
- */
 export function clearWalletCache(): void {
-  if (typeof window !== 'undefined') {
-    sessionStorage.removeItem('sui_wallet_email');
-    sessionStorage.removeItem('sui_wallet_info');
-    localStorage.removeItem('sui_passkey_wallet');
+  if (typeof window !== "undefined") {
+    sessionStorage.removeItem("sui_wallet_email");
+    sessionStorage.removeItem("sui_wallet_info");
+    localStorage.removeItem("sui_passkey_wallet");
   }
   clearKeypairCache();
 }
 
-/**
- * Check if user has a cached wallet
- */
 export function hasWallet(): boolean {
   return getCachedWalletInfo() !== null;
 }

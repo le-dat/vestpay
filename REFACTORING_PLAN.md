@@ -266,7 +266,7 @@ features/{feature-name}/
 
 ```typescript
 // From other features or app pages
-import { SwapInterface, useSwapQuotes } from '@/features/swap';
+import { SwapInterface, useSwapQuotes } from "@/features/swap";
 ```
 
 ---
@@ -292,8 +292,8 @@ import { SwapInterface, useSwapQuotes } from '@/features/swap';
 
 ```typescript
 // Integration layer provides clean API
-import { buildSwap, getSwapQuotes } from '@/integrations/dex/suilend';
-import { supplyToScallop } from '@/integrations/lending/scallop';
+import { buildSwap, getSwapQuotes } from "@/integrations/dex/suilend";
+import { supplyToScallop } from "@/integrations/lending/scallop";
 ```
 
 ---
@@ -383,87 +383,87 @@ import { supplyToScallop } from '@/integrations/lending/scallop';
 
 ### Phase 1: Preparation (0 Risk)
 
-- [ ] Create new directory structure (empty folders)
-- [ ] Set up barrel exports (`index.ts` files)
-- [ ] Update `tsconfig.json` with new path aliases
-- [ ] Commit: "chore: prepare new directory structure"
+- [x] Create new directory structure (empty folders)
+- [x] Set up barrel exports (`index.ts` files)
+- [x] Update `tsconfig.json` with new path aliases
+- [x] Commit: "chore: prepare new directory structure"
 
 ### Phase 2: Shared Layer (Low Risk)
 
-- [ ] Move `components/ui/` → `shared/components/ui/`
-- [ ] Move `components/common/Toast.tsx` → `shared/components/feedback/`
-- [ ] Move `components/layout/` → `shared/components/layout/`
-- [ ] Move `components/logo/` → `shared/components/branding/`
-- [ ] Move `lib/context/` → `shared/contexts/`
-- [ ] Move `lib/utils/` → `shared/utils/`
-- [ ] Move `lib/constants/` (generic) → `shared/constants/`
-- [ ] Commit: "refactor: migrate shared components and utilities"
+- [x] Move `components/ui/` → `shared/components/ui/`
+- [x] Move `components/common/Toast.tsx` → `shared/components/feedback/`
+- [x] Move `components/layout/` → `shared/components/layout/`
+- [x] Move `components/logo/` → `shared/components/branding/`
+- [x] Move `lib/context/` → `shared/contexts/`
+- [x] Move `lib/utils/` → `shared/utils/`
+- [x] Move `lib/constants/` (generic) → `shared/constants/`
+- [x] Commit: "refactor: migrate shared components and utilities"
 
 ### Phase 3: Integration Layer (Medium Risk)
 
-- [ ] Move `lib/sui/` → `integrations/sui/`
-- [ ] Move `lib/suilend/` → `integrations/dex/suilend/`
-- [ ] Move `lib/scallop/` → `integrations/lending/scallop/`
-- [ ] Move `lib/constants/defi-pools.ts` → `config/defi-pools.ts`
-- [ ] Update integration barrel exports
-- [ ] Commit: "refactor: migrate integration layer (SDKs)"
+- [x] Move `lib/sui/` → `integrations/sui/`
+- [x] Move `lib/suilend/` → `integrations/dex/suilend/`
+- [x] Move `lib/scallop/` → `integrations/lending/scallop/`
+- [x] Move `lib/constants/defi-pools.ts` → `config/defi-pools.ts`
+- [x] Update integration barrel exports
+- [x] Commit: "refactor: migrate integration layer (SDKs)"
 
 ### Phase 4: Features Layer (Medium Risk)
 
 #### Priority Order: Swap → Wallet → Dashboard → Lending → Auth
 
-- [ ] **Swap Feature (FIRST - Most Complex):**
+- [x] **Swap Feature (FIRST - Most Complex):**
   - Move swap components → `features/swap/components/`
   - Create swap-specific hooks (extracted from components)
   - Create `features/swap/types/swap.types.ts`
   - Create `features/swap/index.ts`
 
-- [ ] **Wallet Feature:**
+- [x] **Wallet Feature:**
   - Move wallet components → `features/wallet/components/`
   - Move `lib/hooks/useWallet.ts` → `features/wallet/hooks/`
   - Move `lib/hooks/useTransactions.ts` → `features/wallet/hooks/`
   - Create `features/wallet/types/wallet.types.ts`
   - Create `features/wallet/index.ts`
 
-- [ ] **Dashboard Feature:**
+- [x] **Dashboard Feature:**
   - Move dashboard components → `features/dashboard/components/`
   - Create `features/dashboard/index.ts`
 
-- [ ] **Lending Feature:**
+- [x] **Lending Feature:**
   - Move defi/lending components → `features/lending/components/`
   - Move defi hooks → `features/lending/hooks/`
   - Move `lib/hooks/useScallopMarket.ts` → `features/lending/hooks/`
   - Move `lib/types/defi.ts` → `features/lending/types/lending.types.ts`
   - Create `features/lending/index.ts`
 
-- [ ] **Auth Feature:**
+- [x] **Auth Feature:**
   - Move auth components → `features/auth/components/`
   - Create `features/auth/index.ts`
 
-- [ ] Commit: "refactor: migrate to feature-based organization"
+- [x] Commit: "refactor: migrate to feature-based organization"
 
 ### Phase 5: Generic Hooks (Low Risk)
 
-- [ ] Move `lib/hooks/useRefresh.ts` → `shared/hooks/`
-- [ ] Create `shared/hooks/index.ts`
-- [ ] Commit: "refactor: organize shared hooks"
+- [x] Move `lib/hooks/useRefresh.ts` → `shared/hooks/`
+- [x] Create `shared/hooks/index.ts`
+- [x] Commit: "refactor: organize shared hooks"
 
 ### Phase 6: Update Imports & Verification (Critical)
 
-- [ ] Update all import paths across codebase
+- [x] Update all import paths across codebase
   - Find/replace old paths with new paths
   - Use IDE refactoring tools
-- [ ] Verify TypeScript compilation: `npm run build`
-- [ ] Run linting: `npm run lint`
-- [ ] Test all features manually
-- [ ] Commit: "refactor: update import paths"
+- [x] Verify TypeScript compilation: `npm run build`
+- [x] Run linting: `npm run lint`
+- [x] Test all features manually
+- [x] Commit: "refactor: update import paths"
 
 ### Phase 7: Cleanup (Low Risk)
 
-- [ ] Remove old empty directories
-- [ ] Update `README.md` with new structure
-- [ ] Update documentation
-- [ ] Commit: "docs: update documentation for new structure"
+- [x] Remove old empty directories
+- [x] Update `README.md` with new structure
+- [x] Update documentation
+- [x] Commit: "docs: update documentation for new structure"
 
 ---
 
@@ -498,11 +498,11 @@ import { supplyToScallop } from '@/integrations/lending/scallop';
 
 ```typescript
 // features/swap/index.ts
-export { SwapInterface } from './components/SwapInterface';
-export { TokenSelector } from './components/TokenSelector';
-export { useSwapQuotes } from './hooks/useSwapQuotes';
-export { useSwapExecution } from './hooks/useSwapExecution';
-export type { SwapParams, SwapQuote, DexProvider } from './types/swap.types';
+export { SwapInterface } from "./components/SwapInterface";
+export { TokenSelector } from "./components/TokenSelector";
+export { useSwapQuotes } from "./hooks/useSwapQuotes";
+export { useSwapExecution } from "./hooks/useSwapExecution";
+export type { SwapParams, SwapQuote, DexProvider } from "./types/swap.types";
 ```
 
 ---

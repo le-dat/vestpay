@@ -1,17 +1,9 @@
-import { clearWalletCache } from "@/lib/sui/passkey";
-import { ROUTES } from "@/lib/utils/routes";
+import { clearWalletCache } from "@/integrations/sui/passkey";
+import { ROUTES } from "@/shared/utils";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import Logo from "../logo";
-import {
-  LayoutDashboard,
-  ArrowLeftRight,
-  TrendingUp,
-  FileText,
-  Award,
-  Settings,
-  LogOut,
-} from "lucide-react";
+import { Logo } from "@/shared/components/branding";
+import { LayoutDashboard, ArrowLeftRight, TrendingUp, LogOut } from "lucide-react";
 
 const navItems = [
   {

@@ -1,9 +1,9 @@
-import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
-import { SuiClient } from '@mysten/sui/client';
-import { toSerializedSignature } from '@mysten/sui/cryptography';
-import { ISwapRequest } from './types';
-import { buildSwap } from './swap';
-import { prepareTransactionForSigning } from './core/signing';
+import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
+import { SuiClient } from "@mysten/sui/client";
+import { toSerializedSignature } from "@mysten/sui/cryptography";
+import { ISwapRequest } from "./types";
+import { buildSwap } from "./swap";
+import { prepareTransactionForSigning } from "./signing";
 
 export interface ExecuteResult {
   success: boolean;
@@ -22,26 +22,22 @@ export async function executeSwapWithPasskey(
 ): Promise<ExecuteResult> {
   const result = await buildSwap(params);
 
-  const { transactionBytes, digest } = await prepareTransactionForSigning(
-    result.transaction
-  );
+  const { transactionBytes, digest } = await prepareTransactionForSigning(result.transaction);
 
-  const keypair = Ed25519Keypair.fromSecretKey(
-    Buffer.from(privateKey, 'hex')
-  );
+  const keypair = Ed25519Keypair.fromSecretKey(Buffer.from(privateKey, "hex"));
 
-  const digestBytes = Buffer.from(digest, 'base64');
+  const digestBytes = Buffer.from(digest, "base64");
   const signatureData = await keypair.sign(digestBytes);
 
   const client = new SuiClient({
-    url: 'https://fullnode.mainnet.sui.io'
+    url: "https://fullnode.mainnet.sui.io",
   });
 
   const txResult = await client.executeTransactionBlock({
     transactionBlock: transactionBytes,
     signature: toSerializedSignature({
       signature: signatureData,
-      signatureScheme: 'ED25519',
+      signatureScheme: "ED25519",
       publicKey: keypair.getPublicKey(),
     }),
     options: {
@@ -62,9 +58,7 @@ export async function executeSwapWithPasskey(
   };
 }
 
-export async function prepareSwapForSigning(
-  params: ISwapRequest,
-): Promise<{
+export async function prepareSwapForSigning(params: ISwapRequest): Promise<{
   quote: {
     provider: string;
     amountOut: number;

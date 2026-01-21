@@ -5,9 +5,15 @@ import { Copy, QrCode, RotateCcw } from "lucide-react";
 import { getCachedWalletInfo } from "@/integrations/sui/passkey";
 import { useNetwork } from "@/shared/contexts";
 
+interface WalletInfo {
+  email: string;
+  publicKey: string;
+  address: string;
+}
+
 export function NetworkCard() {
   const { client } = useNetwork();
-  const [walletInfo, setWalletInfo] = useState<any>(null);
+  const [walletInfo, setWalletInfo] = useState<WalletInfo | null>(null);
   const [balance, setBalance] = useState<string>("0.00");
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -49,7 +55,7 @@ export function NetworkCard() {
     }
   };
 
-  const formatAddress = (addr: string) => {
+  const formatAddress = (addr?: string) => {
     if (!addr) return "";
     return `${addr.slice(0, 10)}.....${addr.slice(-10)}`;
   };

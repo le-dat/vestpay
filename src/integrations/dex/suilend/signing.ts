@@ -1,6 +1,6 @@
 import { Transaction } from '@mysten/sui/transactions';
 import { blake2b } from '@noble/hashes/blake2.js';
-import { client, createTimeout } from '../sdk';
+import { client, createTimeout } from './sdk';
 import type { PasskeyKeypair } from '@mysten/sui/keypairs/passkey';
 
 export async function buildTransactionBytes(

@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ROUTES } from "@/lib/utils/routes";
+import { ROUTES } from "@/shared/utils";
 import { ArrowLeft, Home, SearchX } from "lucide-react";
 
 const NotFound = () => {

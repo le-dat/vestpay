@@ -1,29 +1,37 @@
-import { Token } from '@suilend/sui-fe';
-import { SLIPPAGE_DECIMAL_DIVISOR } from './constants';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+import { Token } from "@suilend/sui-fe";
+import { SLIPPAGE_DECIMAL_DIVISOR } from "./constants";
 
 export function convertToError(error: unknown): Error {
   return error instanceof Error ? error : new Error(String(error));
 }
 
-export function extractAmountOut(amountOut: any): number {
-  if (!amountOut) return 0;
+export function extractAmountOut(amountOut: unknown): string {
+  if (!amountOut) return "0";
 
-  if (typeof amountOut === 'object' && typeof amountOut.toNumber === 'function') {
-    return amountOut.toNumber();
+  if (
+    typeof amountOut === "object" &&
+    amountOut !== null &&
+    "toString" in amountOut &&
+    typeof (amountOut as any).toString === "function"
+  ) {
+    return (amountOut as { toString: () => string }).toString();
   }
 
-  if (typeof amountOut === 'bigint') {
-    return Number(amountOut);
-  }
-
-  return Number(amountOut);
+  return String(amountOut);
 }
 
 export function convertSlippageToDecimal(slippagePercent: number): number {
   return slippagePercent / SLIPPAGE_DECIMAL_DIVISOR;
 }
 
-export function logSwapAttempt(provider: string, tokenIn: Token, tokenOut: Token, amountIn: string): void {
+export function logSwapAttempt(
+  provider: string,
+  tokenIn: Token,
+  tokenOut: Token,
+  amountIn: string,
+): void {
   console.log(`Getting ${provider} route for swap:`, {
     from: tokenIn.coinType,
     to: tokenOut.coinType,
@@ -46,9 +54,9 @@ export async function withRetry<T>(
   fn: () => Promise<T>,
   retries: number = 3,
   delayMs: number = 1000,
-  validator?: (result: T) => boolean
+  validator?: (result: T) => boolean,
 ): Promise<T> {
-  let lastError: any;
+  let lastError: unknown;
 
   for (let i = 0; i < retries; i++) {
     try {
@@ -57,14 +65,14 @@ export async function withRetry<T>(
         return result;
       }
 
-      lastError = new Error('Validation failed');
+      lastError = new Error("Validation failed");
     } catch (error) {
       lastError = error;
       console.warn(`Attempt ${i + 1}/${retries} failed:`, error);
     }
 
     if (i < retries - 1) {
-      await new Promise(resolve => setTimeout(resolve, delayMs));
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
     }
   }
 

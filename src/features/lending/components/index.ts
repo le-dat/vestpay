@@ -1,6 +1,9 @@
-export { default as LendingTabContent } from "./LendingTabContent";
+export { LendingTabContent } from "./LendingTabContent";
 export { LendingPoolTable } from "./LendingPoolTable";
 export { LendingModal } from "./LendingModal";
 export { SupplyModal } from "./SupplyModal";
 export { WithdrawModal } from "./WithdrawModal";
 export { LoadingSkeleton } from "./LoadingSkeleton";
+export { LendingInputStep } from "./LendingInputStep";
+export { LendingConfirmStep } from "./LendingConfirmStep";
+export { LendingPoolRow } from "./LendingPoolRow";

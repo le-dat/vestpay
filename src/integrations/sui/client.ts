@@ -1,6 +1,11 @@
-import { SuiClient, getFullnodeUrl } from '@mysten/sui/client';
+import { SuiClient, getFullnodeUrl, SuiObjectResponse } from "@mysten/sui/client";
 
-const NETWORK = (process.env.NEXT_PUBLIC_SUI_NETWORK || 'testnet') as 'testnet' | 'devnet' | 'mainnet';
+const NETWORK = (process.env.NEXT_PUBLIC_SUI_NETWORK || "testnet") as
+  | "testnet"
+  | "devnet"
+  | "mainnet";
+
+export const MIST_PER_SUI = BigInt(1_000_000_000);
 
 export function getSuiClient(): SuiClient {
   return new SuiClient({ url: getFullnodeUrl(NETWORK) });
@@ -13,16 +18,15 @@ export async function getWalletBalance(address: string): Promise<string> {
       owner: address,
     });
 
-    // Convert from MIST to SUI (1 SUI = 10^9 MIST)
-    const suiBalance = (BigInt(balance.totalBalance) / BigInt(1_000_000_000)).toString();
+    const suiBalance = (BigInt(balance.totalBalance) / MIST_PER_SUI).toString();
     return suiBalance;
   } catch (error) {
-    console.error('Failed to get balance:', error);
-    return '0';
+    console.error("Failed to get balance:", error);
+    return "0";
   }
 }
 
-export async function getWalletObjects(address: string): Promise<any[]> {
+export async function getWalletObjects(address: string): Promise<SuiObjectResponse[]> {
   try {
     const client = getSuiClient();
     const objects = await client.getOwnedObjects({
@@ -30,14 +34,16 @@ export async function getWalletObjects(address: string): Promise<any[]> {
     });
     return objects.data;
   } catch (error) {
-    console.error('Failed to get objects:', error);
+    console.error("Failed to get objects:", error);
     return [];
   }
 }
 
-export function getExplorerUrl(address: string, network: 'testnet' | 'devnet' | 'mainnet' = 'testnet'): string {
-  const baseUrl = network === 'mainnet'
-    ? 'https://suiscan.xyz/mainnet'
-    : `https://suiscan.xyz/${network}`;
+export function getExplorerUrl(
+  address: string,
+  network: "testnet" | "devnet" | "mainnet" = "testnet",
+): string {
+  const baseUrl =
+    network === "mainnet" ? "https://suiscan.xyz/mainnet" : `https://suiscan.xyz/${network}`;
   return `${baseUrl}/account/${address}`;
 }

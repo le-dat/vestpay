@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import {
   createTokenObject,
   buildSwapTransactionFromQuote,
@@ -20,7 +20,7 @@ export function useSwapExecution(
   const [swapData, setSwapData] = useState<ISwapTransactionResponse | null>(null);
   const [error, setError] = useState("");
 
-  const handleBuildTransaction = async () => {
+  const handleBuildTransaction = useCallback(async () => {
     if (!selectedQuote || !tokenIn || !tokenOut || !walletInfo.address) return;
 
     setLoading(true);
@@ -49,7 +49,6 @@ export function useSwapExecution(
       const amount = parseFloat(amountIn) * Math.pow(10, tokenIn.decimals);
       const slippagePercent = slippage;
 
-      // Fetch user's balance for the input token
       const { SuiClient } = await import("@mysten/sui/client");
       const client = new SuiClient({ url: "https://fullnode.mainnet.sui.io" });
 
@@ -82,7 +81,8 @@ export function useSwapExecution(
         selectedQuote,
       );
 
-      const minAmountOut = Math.floor(result.estimatedAmountOut * (1 - slippagePercent / 100));
+      const estimatedAmountOutNum = Number(result.estimatedAmountOut);
+      const minAmountOut = Math.floor(estimatedAmountOutNum * (1 - slippagePercent / 100));
 
       const routes = selectedQuote.routes.map((route) => ({
         percent: route.percent.toNumber(),
@@ -112,9 +112,9 @@ export function useSwapExecution(
         },
         quote: {
           provider: selectedQuote.provider,
-          amountOut: result.estimatedAmountOut,
-          amountOutFormatted: `${(result.estimatedAmountOut / Math.pow(10, tokenOut.decimals)).toFixed(6)} ${tokenOut.symbol}`,
-          exchangeRate: result.estimatedAmountOut / amount,
+          amountOut: estimatedAmountOutNum,
+          amountOutFormatted: `${(estimatedAmountOutNum / Math.pow(10, tokenOut.decimals)).toFixed(6)} ${tokenOut.symbol}`,
+          exchangeRate: estimatedAmountOutNum / Number(amount),
           routes,
         },
         slippage: {
@@ -134,7 +134,7 @@ export function useSwapExecution(
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedQuote, tokenIn, tokenOut, walletInfo.address, amountIn, slippage, walletInfo]);
 
   return {
     loading,

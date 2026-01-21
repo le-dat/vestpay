@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { LendingModal } from './LendingModal';
-import { LendingPool, LendingModalConfig } from '@/features/lending/types/lending.types';
+import { LendingModal } from "./LendingModal";
+import { LendingPool, LendingModalConfig } from "@/features/lending";
 
 interface WithdrawModalProps {
   isOpen: boolean;
@@ -21,14 +21,14 @@ export function WithdrawModal({
   onSuccess,
 }: WithdrawModalProps) {
   const config: LendingModalConfig = {
-    type: 'withdraw',
-    title: 'Withdraw',
-    actionLabel: 'Withdraw',
-    successMessage: 'You have withdrawn {amount} {coin}',
+    type: "withdraw",
+    title: "Withdraw",
+    actionLabel: "Withdraw",
+    successMessage: "You have withdrawn {amount} {coin}",
     maxAmount: suppliedAmount,
-    maxAmountLabel: 'Supplied',
+    maxAmountLabel: "Supplied",
     buildTransaction: async (params) => {
-      const { buildWithdrawTransaction } = await import('@/integrations/lending/scallop/withdraw');
+      const { buildWithdrawTransaction } = await import("@/integrations/lending/scallop");
       return buildWithdrawTransaction({
         ...params,
         decimals: pool.decimals,

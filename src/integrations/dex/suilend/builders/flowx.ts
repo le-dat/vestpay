@@ -1,9 +1,15 @@
-import { Transaction } from '@mysten/sui/transactions';
-import { client } from '../../sdk';
-import { getDexSdk } from '../quote';
-import { FLOWX_DEADLINE_MS, PROVIDER_NAMES } from '../constants';
-import type { SwapParams, SwapResult } from '../types';
-import { convertToError, logSwapAttempt, logSwapSuccess, logRouteFound, withRetry } from '../helpers';
+import { Transaction } from "@mysten/sui/transactions";
+import { client } from "../sdk";
+import { getDexSdk } from "../quote";
+import { FLOWX_DEADLINE_MS, PROVIDER_NAMES } from "../constants";
+import type { SwapParams, SwapResult } from "../types";
+import {
+  convertToError,
+  logSwapAttempt,
+  logSwapSuccess,
+  logRouteFound,
+  withRetry,
+} from "../helpers";
 
 export async function buildFlowXSwapTransaction(params: SwapParams): Promise<SwapResult> {
   const { userAddress, tokenIn, tokenOut, amountIn, slippagePercent } = params;
@@ -15,36 +21,39 @@ export async function buildFlowXSwapTransaction(params: SwapParams): Promise<Swa
     logSwapAttempt(PROVIDER_NAMES.flowx, tokenIn, tokenOut, amountIn);
 
     const routesResult = await withRetry(
-      () => flowxQuoter.getRoutes({
-        tokenIn: tokenIn.coinType,
-        tokenOut: tokenOut.coinType,
-        amountIn,
-      }),
+      () =>
+        flowxQuoter.getRoutes({
+          tokenIn: tokenIn.coinType,
+          tokenOut: tokenOut.coinType,
+          amountIn,
+        }),
       10,
       1000,
-      (result) => !!result && Array.isArray(result) && result.length > 0
+      (result) => !!result && Array.isArray(result) && result.length > 0,
     );
 
     if (!routesResult || !Array.isArray(routesResult) || routesResult.length === 0) {
-      throw new Error(`No routes found from FlowX ${tokenIn.symbol} -> ${tokenOut.symbol} after retries`);
+      throw new Error(
+        `No routes found from FlowX ${tokenIn.symbol} -> ${tokenOut.symbol} after retries`,
+      );
     }
 
     const bestRoute = routesResult[0];
 
     if (!bestRoute || !bestRoute.amountIn || !bestRoute.amountOut) {
-      throw new Error('Invalid route data from FlowX');
+      throw new Error("Invalid route data from FlowX");
     }
 
     logRouteFound(
       PROVIDER_NAMES.flowx,
       bestRoute.amountIn.toString(),
-      bestRoute.amountOut.toString()
+      bestRoute.amountOut.toString(),
     );
 
-    const { TradeBuilder } = await import('@flowx-finance/sdk');
+    const { TradeBuilder } = await import("@flowx-finance/sdk");
     const amountOut = bestRoute.amountOut.toString();
 
-    const tradeBuilder = new TradeBuilder('mainnet', routesResult)
+    const tradeBuilder = new TradeBuilder("mainnet", routesResult)
       .sender(userAddress)
       .amountIn(amountIn)
       .amountOut(amountOut)
@@ -66,11 +75,11 @@ export async function buildFlowXSwapTransaction(params: SwapParams): Promise<Swa
 
     return {
       transaction,
-      estimatedAmountOut: Number(amountOut),
+      estimatedAmountOut: amountOut.toString(),
     };
   } catch (error) {
     const err = convertToError(error);
-    console.error('FlowX swap error:', err);
+    console.error("FlowX swap error:", err);
     throw new Error(`FlowX swap failed: ${err.message}`);
   }
 }

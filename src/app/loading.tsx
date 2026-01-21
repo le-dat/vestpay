@@ -1,6 +1,6 @@
 "use client";
 
-import Logo from "@/components/logo";
+import { Logo } from "@/shared/components/branding";
 
 const Loading = () => {
   return (

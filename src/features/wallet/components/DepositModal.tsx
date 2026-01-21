@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { Copy, Check, AlertCircle } from "lucide-react";
-import Modal from "@/shared/components/ui";
-import { useWallet } from "@/features/wallet/hooks";
+import { Modal } from "@/shared/components/ui";
+import { useWallet } from "@/features/wallet";
 import { useNetwork } from "@/shared/contexts";
 
 interface DepositModalProps {

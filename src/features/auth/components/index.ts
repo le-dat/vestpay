@@ -1,5 +1,7 @@
 export { AuthLayout } from "./AuthLayout";
-export { FloatingDots } from "./FloatingDots";
 export { LoginSidebar } from "./LoginSidebar";
-export { ProtectedRoute } from "./ProtectedRoute";
 export { RegisterSidebar } from "./RegisterSidebar";
+export { ProtectedRoute } from "./ProtectedRoute";
+export { FloatingDots } from "./FloatingDots";
+export { RegisterForm } from "./RegisterForm";
+export { LoginForm } from "./LoginForm";

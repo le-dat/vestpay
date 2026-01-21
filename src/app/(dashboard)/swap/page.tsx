@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import SwapInterface from "@/components/swap/SwapInterface";
-import { getCachedWalletInfo } from "@/lib/sui/passkey";
+import { SwapInterface } from "@/features/swap";
+import { getCachedWalletInfo } from "@/integrations/sui/passkey";
 
 export default function SwapPage() {
   const [walletInfo, setWalletInfo] = useState<{
@@ -17,7 +17,6 @@ export default function SwapPage() {
 
   async function loadWallet() {
     try {
-      // Try sessionStorage first
       const cached = getCachedWalletInfo();
       if (cached) {
         setWalletInfo({ address: cached.address, email: cached.email });
@@ -25,7 +24,6 @@ export default function SwapPage() {
         return;
       }
 
-      // Fallback to localStorage
       const stored = localStorage.getItem("sui_passkey_wallet");
       if (stored) {
         const { address, email } = JSON.parse(stored);
@@ -52,7 +50,7 @@ export default function SwapPage() {
         <h2 className="text-2xl font-bold mb-4">Connect Wallet</h2>
         <p className="text-gray-600 mb-6">Please connect your wallet to use the swap feature</p>
         <button
-          onClick={() => window.location.href = "/login"}
+          onClick={() => (window.location.href = "/login")}
           className="px-6 py-3 bg-primary hover:bg-primary/90 text-white font-bold rounded-2xl"
         >
           Go to Login

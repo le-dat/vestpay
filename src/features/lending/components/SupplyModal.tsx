@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { LendingModal } from './LendingModal';
-import { LendingPool, LendingModalConfig } from '@/features/lending/types/lending.types';
-import type { FormattedCoinBalance } from '@/integrations/sui/balance';
+import { LendingModal } from "./LendingModal";
+import { LendingPool, LendingModalConfig } from "@/features/lending";
+import type { FormattedCoinBalance } from "@/integrations/sui/balance";
 
 interface SupplyModalProps {
   isOpen: boolean;
@@ -21,20 +21,18 @@ export function SupplyModal({
   walletCoins,
   onSuccess,
 }: SupplyModalProps) {
-  const coinBalance = walletCoins.find(
-    (c) => c.symbol.toUpperCase() === pool.coin.toUpperCase()
-  );
+  const coinBalance = walletCoins.find((c) => c.symbol.toUpperCase() === pool.coin.toUpperCase());
   const maxBalance = coinBalance ? parseFloat(coinBalance.balanceFormatted) : 0;
 
   const config: LendingModalConfig = {
-    type: 'supply',
-    title: 'Supply',
-    actionLabel: 'Supply',
-    successMessage: 'You have supplied {amount} {coin}',
+    type: "supply",
+    title: "Supply",
+    actionLabel: "Supply",
+    successMessage: "You have supplied {amount} {coin}",
     maxAmount: maxBalance,
-    maxAmountLabel: 'Balance',
+    maxAmountLabel: "Balance",
     buildTransaction: async (params) => {
-      const { buildSupplyTransaction } = await import('@/integrations/lending/scallop/supply');
+      const { buildSupplyTransaction } = await import("@/integrations/lending/scallop");
       return buildSupplyTransaction({
         ...params,
         decimals: pool.decimals,

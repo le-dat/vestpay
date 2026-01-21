@@ -1,4 +1,4 @@
-import { prepareSwapForSigning } from '../lib/suilend';
+import { prepareSwapForSigning } from '../src/integrations/dex/suilend';
 
 const COIN_TYPES = {
   SUI: '0x2::sui::SUI',

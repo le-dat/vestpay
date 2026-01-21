@@ -2,9 +2,9 @@
 
 import { motion } from "framer-motion";
 import { Fingerprint } from "lucide-react";
-import FloatingDots from "./floating-dots";
+import { FloatingDots } from "./FloatingDots";
 
-export default function RegisterSidebar() {
+export function RegisterSidebar() {
   return (
     <>
       <FloatingDots count={40} opacity={0.4} />

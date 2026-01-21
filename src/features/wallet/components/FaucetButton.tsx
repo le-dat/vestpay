@@ -43,6 +43,7 @@ export default function FaucetButton({ onSuccess }: FaucetButtonProps) {
         onSuccess?.();
         setTimeout(() => setMessage(""), 5000);
       }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       setMessage(error.message || "Failed to request faucet");
       setIsError(true);

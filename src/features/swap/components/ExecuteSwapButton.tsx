@@ -31,11 +31,9 @@ export function ExecuteSwapButton({
     setError("");
 
     try {
-      // Import signing function
       const { signAndExecuteSwapTransaction } = await import("@/integrations/dex/suilend");
       const { recoverPasskeyWallet } = await import("@/integrations/sui");
 
-      // Recover passkey wallet
       const wallet = await recoverPasskeyWallet();
       if (!wallet) {
         throw new Error("Failed to recover wallet. Please login again.");
@@ -43,12 +41,10 @@ export function ExecuteSwapButton({
 
       console.log("Executing swap transaction...");
 
-      // Sign and execute transaction
       const result = await signAndExecuteSwapTransaction(swapData.transaction, wallet.keypair);
 
       console.log("Swap executed successfully:", result.digest);
 
-      // Show success toast
       showToast({
         type: "success",
         title: "Swap Successful!",
@@ -57,14 +53,12 @@ export function ExecuteSwapButton({
         duration: 6000,
       });
 
-      // Call onSuccess immediately
       onSuccess();
     } catch (err) {
       console.error("Failed to execute swap:", err);
       const errorMsg = err instanceof Error ? err.message : "Failed to execute swap";
       setError(errorMsg);
 
-      // Show error toast
       showToast({
         type: "error",
         title: "Swap Failed",

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ScallopMarketData } from "@/features/lending/types/lending.types";
+import { ScallopMarketData } from "@/features/lending";
 
 export const useScallopMarket = () => {
   const [data, setData] = useState<ScallopMarketData | null>(null);

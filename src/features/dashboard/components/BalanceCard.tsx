@@ -1,10 +1,10 @@
 "use client";
 
-import { CoinIcon } from "@/components/wallet/CoinIcon";
+import { CoinIcon } from "@/features/wallet";
 import { useRefresh } from "@/shared/hooks";
-import { useWallet } from "@/features/wallet/hooks";
-import { ScallopMarketData } from "@/lib/types/defi";
-import { formatCoinBalance, formatCurrency } from "@/lib/utils/format";
+import { useWallet } from "@/features/wallet";
+import { ScallopMarketData } from "@/features/lending";
+import { formatCoinBalance, formatCurrency } from "@/shared/utils";
 import { motion } from "framer-motion";
 import { ArrowDownLeft, ArrowUpRight, LayoutGrid, RefreshCw, Wallet } from "lucide-react";
 import { useMemo } from "react";
@@ -32,7 +32,7 @@ export default function BalanceCard({ onDeposit, onSend, marketData }: BalanceCa
         (p) =>
           p.coinType === coin.coinType ||
           p.sCoinType === coin.coinType ||
-          p.symbol.toUpperCase() === coin.symbol.toUpperCase()
+          p.symbol.toUpperCase() === coin.symbol.toUpperCase(),
       );
 
       let price = pool?.coinPrice || 0;
@@ -49,8 +49,8 @@ export default function BalanceCard({ onDeposit, onSend, marketData }: BalanceCa
     });
 
     return {
-      totalUSD: formatCurrency(total).replace('$', ''),
-      coinValues: values
+      totalUSD: formatCurrency(total).replace("$", ""),
+      coinValues: values,
     };
   }, [coins, marketData]);
 
@@ -79,8 +79,9 @@ export default function BalanceCard({ onDeposit, onSend, marketData }: BalanceCa
             title="Refresh balance"
           >
             <RefreshCw
-              className={`w-6 h-6 text-gray-400 group-hover/refresh:text-primary transition-colors ${refreshing || loading ? "animate-spin text-primary" : ""
-                }`}
+              className={`w-6 h-6 text-gray-400 group-hover/refresh:text-primary transition-colors ${
+                refreshing || loading ? "animate-spin text-primary" : ""
+              }`}
             />
           </motion.button>
         </div>
@@ -131,7 +132,7 @@ export default function BalanceCard({ onDeposit, onSend, marketData }: BalanceCa
                       </p>
                     </div>
                   </motion.div>
-                )
+                );
               })}
             </div>
           </div>

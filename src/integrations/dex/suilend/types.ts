@@ -1,5 +1,26 @@
-import { Transaction } from '@mysten/sui/transactions';
-import { StandardizedQuote } from '@suilend/sdk';
+import { Transaction } from "@mysten/sui/transactions";
+import { StandardizedQuote } from "@suilend/sdk";
+import { Token } from "@suilend/sui-fe";
+
+export type DexProvider = "cetus" | "aftermath" | "flowx";
+
+export interface SwapParams {
+  userAddress: string;
+  tokenIn: Token;
+  tokenOut: Token;
+  amountIn: string;
+  slippagePercent: number;
+}
+
+export interface SwapResult {
+  transaction: Transaction;
+  estimatedAmountOut: string;
+}
+
+export interface BalanceValidation {
+  isValid: boolean;
+  message?: string;
+}
 
 export interface ISwapRequest {
   userAddress: string;

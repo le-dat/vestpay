@@ -1,16 +1,8 @@
-import { ISwapRequest, ISwapTransactionResponse, RouteGroup } from './types';
-import { createTokenObject, buildSwapTransaction } from './core/transaction';
+import { ISwapRequest, ISwapTransactionResponse, RouteGroup } from "./types";
+import { createTokenObject, buildSwapTransaction } from "./transaction";
 
-export async function buildSwap(
-  params: ISwapRequest,
-): Promise<ISwapTransactionResponse> {
-  const {
-    userAddress,
-    coinInType,
-    coinOutType,
-    amountIn,
-    slippageTolerance = 100,
-  } = params;
+export async function buildSwap(params: ISwapRequest): Promise<ISwapTransactionResponse> {
+  const { userAddress, coinInType, coinOutType, amountIn, slippageTolerance = 100 } = params;
 
   const slippagePercent = slippageTolerance / 100;
 
@@ -22,14 +14,15 @@ export async function buildSwap(
     tokenIn,
     tokenOut,
     amountIn.toString(),
-    slippagePercent
+    slippagePercent,
   );
 
-  const minAmountOut = Math.floor(estimatedAmountOut * (1 - slippagePercent / 100));
+  const estimatedAmountOutNum = Number(estimatedAmountOut);
+  const minAmountOut = Math.floor(estimatedAmountOutNum * (1 - slippagePercent / 100));
 
-  const routes: RouteGroup[] = bestQuote.routes.map(route => ({
+  const routes: RouteGroup[] = bestQuote.routes.map((route) => ({
     percent: route.percent.toNumber(),
-    path: route.path.map(step => ({
+    path: route.path.map((step) => ({
       provider: step.provider,
       poolId: step.poolId,
       from: {
@@ -47,9 +40,9 @@ export async function buildSwap(
     transaction,
     quote: {
       provider: bestQuote.provider,
-      amountOut: estimatedAmountOut,
-      amountOutFormatted: `${(estimatedAmountOut / 1e6).toFixed(6)} USDC`,
-      exchangeRate: estimatedAmountOut / amountIn,
+      amountOut: estimatedAmountOutNum,
+      amountOutFormatted: `${(estimatedAmountOutNum / 1e6).toFixed(6)} USDC`,
+      exchangeRate: estimatedAmountOutNum / amountIn,
       routes,
     },
     slippage: {
@@ -60,13 +53,12 @@ export async function buildSwap(
   };
 }
 
-export async function buildSwapBytes(
-  params: ISwapRequest,
-): Promise<string> {
+export async function buildSwapBytes(params: ISwapRequest): Promise<string> {
   const { transaction } = await buildSwap(params);
-  
-  const { buildTransactionBytes } = await import('./core/signing');
+
+  const { buildTransactionBytes } = await import("./signing");
+
   const txBytes = await buildTransactionBytes(transaction);
-  
-  return Buffer.from(txBytes).toString('base64');
+
+  return Buffer.from(txBytes).toString("base64");
 }
