@@ -1,3 +1,4 @@
+'use client'
 import { clearWalletCache } from "@/integrations/sui/passkey";
 import { ROUTES } from "@/shared/utils";
 import Link from "next/link";

@@ -54,12 +54,12 @@ export function LoginSidebar() {
               { label: "High Fees", sublabel: "Hidden Costs" },
               { label: "Passwords", sublabel: "Security Risk" },
               { label: "Custodial", sublabel: "No True Control" },
-            ].map((item, i) => (
+            ].map((item) => (
               <motion.div
-                key={i}
+                key={item.label}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: 0.5 + i * 0.1 }}
+                transition={{ duration: 0.5, delay: 0.5 }}
                 className="flex items-center gap-3"
               >
                 <div className="w-5 h-5 border-2 border-gray-700 flex items-center justify-center">
@@ -91,12 +91,12 @@ export function LoginSidebar() {
               { label: "Zero Fees", sublabel: "Gas Abstracted" },
               { label: "Biometric", sublabel: "Passkey Security" },
               { label: "Self-Custody", sublabel: "True Ownership" },
-            ].map((item, i) => (
+            ].map((item) => (
               <motion.div
-                key={i}
+                key={item.label}
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: 0.5 + i * 0.1 }}
+                transition={{ duration: 0.5, delay: 0.5 }}
                 className="flex items-center gap-3"
               >
                 <div className="w-5 h-5 border-2 border-primary flex items-center justify-center bg-primary/10">

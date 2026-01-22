@@ -93,20 +93,19 @@ export function RegisterSidebar() {
             { label: "Zero Gas Fees", detail: "Abstracted Away" },
             { label: "Biometric Auth", detail: "FaceID • TouchID" },
             { label: "Sui Network", detail: "Next-Gen Speed" },
-          ].map((item, i) => (
+          ].map((item) => (
             <motion.div
-              key={i}
+              key={item.label}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.6 + i * 0.1 }}
+              transition={{ duration: 0.5, delay: 0.6 }}
               className="flex items-center gap-4 group cursor-default"
-              style={{ paddingLeft: `${i * 12}px` }}
             >
               <div className="w-6 h-6 border-2 border-primary/40 group-hover:border-primary flex items-center justify-center transition-colors">
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  transition={{ delay: 0.8 + i * 0.1 }}
+                  transition={{ delay: 0.8 }}
                   className="w-2 h-2 bg-primary"
                 />
               </div>

@@ -42,5 +42,8 @@ next-env.d.ts
 
 .env
 .agent
+.agents
 .claude
+.gemini
+.cursor
 
