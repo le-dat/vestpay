@@ -1,10 +1,9 @@
 "use client";
 
-import { DashboardSidebar } from "@/shared/components/layout";
 import { ProtectedRoute } from "@/features/auth";
-import { TopBar } from "@/shared/components/layout";
 import { getCachedWalletInfo } from "@/integrations/sui/passkey";
-import { useEffect, useState } from "react";
+import { DashboardSidebar, TopBar } from "@/shared/components/layout";
+import { useState } from "react";
 
 export default function ProtectLayout({ children }: { children: React.ReactNode }) {
   const [email] = useState<string | undefined>(() => {

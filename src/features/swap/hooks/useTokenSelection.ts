@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import type { CetusToken } from "@/integrations/dex/suilend/tokens";
 import { fetchCetusTokens } from "@/integrations/dex/suilend/tokens";
+import { SuiClient } from "@mysten/sui/client";
 
 export function useTokenSelection(walletAddress: string) {
   const [tokenIn, setTokenIn] = useState<CetusToken | null>(null);
@@ -22,7 +23,6 @@ export function useTokenSelection(walletAddress: string) {
 
   const fetchTokenBalance = async (coinType: string): Promise<string> => {
     try {
-      const { SuiClient } = await import("@mysten/sui/client");
       const client = new SuiClient({ url: "https://fullnode.mainnet.sui.io" });
 
       const balance = await client.getBalance({

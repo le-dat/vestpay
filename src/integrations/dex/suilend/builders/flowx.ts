@@ -10,6 +10,7 @@ import {
   logRouteFound,
   withRetry,
 } from "../helpers";
+import { TradeBuilder } from "@flowx-finance/sdk";
 
 export async function buildFlowXSwapTransaction(params: SwapParams): Promise<SwapResult> {
   const { userAddress, tokenIn, tokenOut, amountIn, slippagePercent } = params;
@@ -50,7 +51,6 @@ export async function buildFlowXSwapTransaction(params: SwapParams): Promise<Swa
       bestRoute.amountOut.toString(),
     );
 
-    const { TradeBuilder } = await import("@flowx-finance/sdk");
     const amountOut = bestRoute.amountOut.toString();
 
     const tradeBuilder = new TradeBuilder("mainnet", routesResult)

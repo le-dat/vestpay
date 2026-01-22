@@ -3,6 +3,7 @@
 import { LendingModal } from "./LendingModal";
 import { LendingPool, LendingModalConfig } from "@/features/lending";
 import type { FormattedCoinBalance } from "@/integrations/sui/balance";
+import { buildSupplyTransaction } from "@/integrations/lending/scallop";
 
 interface SupplyModalProps {
   isOpen: boolean;
@@ -32,7 +33,6 @@ export function SupplyModal({
     maxAmount: maxBalance,
     maxAmountLabel: "Balance",
     buildTransaction: async (params) => {
-      const { buildSupplyTransaction } = await import("@/integrations/lending/scallop");
       return buildSupplyTransaction({
         ...params,
         decimals: pool.decimals,

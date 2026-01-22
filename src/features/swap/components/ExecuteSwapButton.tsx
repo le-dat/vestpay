@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import type { ISwapTransactionResponse } from "@/integrations/dex/suilend";
+import { signAndExecuteSwapTransaction } from "@/integrations/dex/suilend";
+import { recoverPasskeyWallet } from "@/integrations/sui";
 import { showToast } from "@/shared/components/feedback";
 
 interface ExecuteSwapButtonProps {
@@ -31,9 +33,6 @@ export function ExecuteSwapButton({
     setError("");
 
     try {
-      const { signAndExecuteSwapTransaction } = await import("@/integrations/dex/suilend");
-      const { recoverPasskeyWallet } = await import("@/integrations/sui");
-
       const wallet = await recoverPasskeyWallet();
       if (!wallet) {
         throw new Error("Failed to recover wallet. Please login again.");

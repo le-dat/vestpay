@@ -7,6 +7,7 @@ import {
 import type { StandardizedQuote } from "@suilend/sdk";
 import { showToast } from "@/shared/components/feedback";
 import type { CetusToken } from "@/integrations/dex/suilend/tokens";
+import { SuiClient } from "@mysten/sui/client";
 
 export function useSwapExecution(
   walletInfo: { address: string; email: string },
@@ -49,7 +50,6 @@ export function useSwapExecution(
       const amount = parseFloat(amountIn) * Math.pow(10, tokenIn.decimals);
       const slippagePercent = slippage;
 
-      const { SuiClient } = await import("@mysten/sui/client");
       const client = new SuiClient({ url: "https://fullnode.mainnet.sui.io" });
 
       const balance = await client.getBalance({

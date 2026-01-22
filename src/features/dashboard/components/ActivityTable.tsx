@@ -1,11 +1,11 @@
 "use client";
 
-import { ChevronDown, RefreshCw, History, ArrowRight } from "lucide-react";
 import { useTransactions } from "@/features/wallet";
 import { useRefresh } from "@/shared/hooks";
-import TransactionRow from "./TransactionRow";
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowRight, History, RefreshCw } from "lucide-react";
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import TransactionRow from "./TransactionRow";
 
 export default function ActivityTable() {
   const { transactions, loading, error, hasNextPage, loadMore, refresh } = useTransactions(10);

@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useCallback } from "react";
+import { getTransactionHistory } from "@/integrations/sui";
+import { SuiClient } from "@mysten/sui/client";
 
 export function useSwapHistory(address: string, autoRefreshInterval: number = 5000) {
   const [history, setHistory] = useState<any[]>([]);
@@ -10,8 +12,6 @@ export function useSwapHistory(address: string, autoRefreshInterval: number = 50
 
     try {
       setLoading(true);
-      const { getTransactionHistory } = await import("@/integrations/sui");
-      const { SuiClient } = await import("@mysten/sui/client");
       const client = new SuiClient({ url: "https://fullnode.mainnet.sui.io" });
       const res = await getTransactionHistory(client, address, 5);
       setHistory(res.data);

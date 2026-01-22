@@ -1,5 +1,6 @@
 import { ISwapRequest, ISwapTransactionResponse, RouteGroup } from "./types";
 import { createTokenObject, buildSwapTransaction } from "./transaction";
+import { buildTransactionBytes } from "./signing";
 
 export async function buildSwap(params: ISwapRequest): Promise<ISwapTransactionResponse> {
   const { userAddress, coinInType, coinOutType, amountIn, slippageTolerance = 100 } = params;
@@ -55,8 +56,6 @@ export async function buildSwap(params: ISwapRequest): Promise<ISwapTransactionR
 
 export async function buildSwapBytes(params: ISwapRequest): Promise<string> {
   const { transaction } = await buildSwap(params);
-
-  const { buildTransactionBytes } = await import("./signing");
 
   const txBytes = await buildTransactionBytes(transaction);
 

@@ -2,6 +2,8 @@
 import { useState, useCallback } from "react";
 import { showToast } from "@/shared/components/feedback";
 import type { LendingPool } from "@/features/lending";
+import { recoverPasskeyWallet } from "@/integrations/sui/passkey";
+import { signAndExecuteSwapTransaction } from "@/integrations/dex/suilend";
 
 export interface UseLendingTransactionParams {
   pool: LendingPool;
@@ -44,9 +46,6 @@ export function useLendingTransaction({
       setLoading(true);
 
       try {
-        const { recoverPasskeyWallet } = await import("@/integrations/sui/passkey");
-        const { signAndExecuteSwapTransaction } = await import("@/integrations/dex/suilend");
-
         const wallet = await recoverPasskeyWallet();
         if (!wallet) {
           throw new Error("Failed to recover wallet. Please login again.");

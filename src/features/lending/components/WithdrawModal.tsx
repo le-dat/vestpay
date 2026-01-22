@@ -2,6 +2,7 @@
 
 import { LendingModal } from "./LendingModal";
 import { LendingPool, LendingModalConfig } from "@/features/lending";
+import { buildWithdrawTransaction } from "@/integrations/lending/scallop";
 
 interface WithdrawModalProps {
   isOpen: boolean;
@@ -28,7 +29,6 @@ export function WithdrawModal({
     maxAmount: suppliedAmount,
     maxAmountLabel: "Supplied",
     buildTransaction: async (params) => {
-      const { buildWithdrawTransaction } = await import("@/integrations/lending/scallop");
       return buildWithdrawTransaction({
         ...params,
         decimals: pool.decimals,
