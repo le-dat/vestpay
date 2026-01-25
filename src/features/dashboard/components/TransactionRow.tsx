@@ -1,9 +1,9 @@
 "use client";
 
-import { ExternalLink, ArrowDownLeft, ArrowUpRight, FileCode } from "lucide-react";
+import { ExternalLink, ArrowDownLeft, ArrowUpRight, Repeat } from "lucide-react";
 import { TransactionSummary } from "@/integrations/sui/history";
 import { getTransactionExplorerUrl } from "@/integrations/sui/history";
-import { useNetwork } from "@/shared/contexts";
+import { CoinIcon } from "@/features/wallet";
 import { motion } from "framer-motion";
 
 interface TransactionRowProps {
@@ -11,162 +11,120 @@ interface TransactionRowProps {
 }
 
 export default function TransactionRow({ transaction }: TransactionRowProps) {
-  const { network } = useNetwork();
+  const formatTimeAgo = (timestamp: number) => {
+    const now = Date.now();
+    const diff = now - timestamp;
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
 
-  const formatDate = (timestamp: number) => {
-    const date = new Date(timestamp);
-    return {
-      date: new Intl.DateTimeFormat("en-US", {
-        month: "short",
-        day: "numeric",
-      }).format(date),
-      time: new Intl.DateTimeFormat("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-      }).format(date),
-    };
+    if (minutes < 1) return "Just now";
+    if (minutes < 60) return `${minutes} min${minutes > 1 ? "s" : ""} ago`;
+    if (hours < 24) return `${hours} hour${hours > 1 ? "s" : ""} ago`;
+    if (days === 1) return "Yesterday";
+    return `${days} days ago`;
   };
-
-  const formatAddress = (address?: string) => {
-    if (!address) return "Unknown";
-    return `${address.slice(0, 6)}...${address.slice(-4)}`;
-  };
-
-  const formattedDate = formatDate(transaction.timestamp);
 
   const getTypeIcon = (type: TransactionSummary["type"]) => {
     switch (type) {
       case "sent":
-        return <ArrowUpRight className="w-4 h-4 text-white" />;
+        return <ArrowUpRight className="w-4 h-4" />;
       case "received":
-        return <ArrowDownLeft className="w-4 h-4 text-white" />;
+        return <ArrowDownLeft className="w-4 h-4" />;
       case "contract":
-        return <FileCode className="w-4 h-4 text-white" />;
+        return <Repeat className="w-4 h-4" />;
       default:
-        return <FileCode className="w-4 h-4 text-white" />;
+        return <Repeat className="w-4 h-4" />;
     }
   };
 
-  const getIconBg = (type: TransactionSummary["type"]) => {
+  const getIconStyles = (type: TransactionSummary["type"]) => {
     switch (type) {
       case "sent":
-        return "bg-rose-500 shadow-rose-200";
+        return "bg-rose-100 text-rose-500";
       case "received":
-        return "bg-emerald-500 shadow-emerald-200";
+        return "bg-emerald-100 text-emerald-500";
       case "contract":
-        return "bg-blue-500 shadow-blue-200";
+        return "bg-blue-100 text-blue-500";
       default:
-        return "bg-gray-500 shadow-gray-200";
+        return "bg-gray-100 text-gray-500";
     }
   };
 
   const getTypeLabel = (type: TransactionSummary["type"]) => {
     switch (type) {
       case "sent":
-        return "Sent Assets";
+        return "Send";
       case "received":
-        return "Received Assets";
+        return "Receive";
       case "contract":
-        return "Smart Contract";
+        return "Swap";
       default:
-        return "Unknown";
+        return "Transaction";
     }
   };
 
   return (
-    <motion.tr
-      initial={{ opacity: 0, scale: 0.98 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.98 }}
-      className="group hover:bg-gray-50/50 transition-all duration-300"
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      className="group relative bg-gray-50 hover:bg-gray-100/70 rounded-2xl p-4 transition-all duration-200"
     >
-      <td className="py-5 pl-6 rounded-l-2xl">
-        <div className="flex items-center gap-4">
-          <div
-            className={`p-2.5 rounded-xl shadow-lg transition-transform group-hover:scale-110 ${getIconBg(transaction.type)}`}
-          >
+      <div className="flex items-center justify-between gap-4">
+        {/* Left: Icon + Type + Time */}
+        <div className="flex items-center gap-3 min-w-0 flex-1">
+          <div className={`p-2 rounded-xl ${getIconStyles(transaction.type)}`}>
             {getTypeIcon(transaction.type)}
           </div>
-          <div className="flex flex-col">
-            <span className="text-sm font-bold text-secondary">
-              {getTypeLabel(transaction.type)}
-            </span>
-            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none mt-1">
-              {transaction.type === "sent" && transaction.to
-                ? `To: ${formatAddress(transaction.to)}`
-                : transaction.type === "received" && transaction.from
-                  ? `From: ${formatAddress(transaction.from)}`
-                  : `TX: ${formatAddress(transaction.digest)}`}
-            </span>
-          </div>
-        </div>
-      </td>
-
-      <td className="py-5">
-        <div className="flex flex-col">
-          <span className="text-sm font-bold text-secondary tracking-tight">
-            {formattedDate.date}
-          </span>
-          <span className="text-[11px] font-medium text-gray-400 tabular-nums">
-            {formattedDate.time}
-          </span>
-        </div>
-      </td>
-
-      <td className="py-5">
-        <div
-          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border shadow-xs transition-all
-          ${
-            transaction.status === "success"
-              ? "bg-emerald-50 text-emerald-700 border-emerald-100/50"
-              : "bg-rose-50 text-rose-700 border-rose-100/50"
-          }`}
-        >
-          {transaction.status === "success" ? (
-            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-          ) : (
-            <div className="w-1.5 h-1.5 rounded-full bg-rose-500" />
-          )}
-          <span className="text-[9px] font-black uppercase tracking-widest">
-            {transaction.status === "success" ? "Confirmed" : "Failed"}
-          </span>
-        </div>
-      </td>
-
-      <td className="py-5 text-right">
-        {transaction.amountFormatted ? (
-          <div className="flex flex-col items-end">
-            <span
-              className={`text-base font-black tabular-nums tracking-tight ${
-                transaction.type === "sent" ? "text-rose-500" : "text-emerald-500"
-              }`}
-            >
-              {transaction.type === "sent" ? "-" : "+"}
-              {transaction.amountFormatted}{" "}
-              <span className="text-[10px] ml-0.5">{transaction.symbol}</span>
-            </span>
-            {transaction.gasFeeFormatted && (
-              <span className="text-[10px] font-medium text-gray-400 tracking-tighter">
-                Gas: {transaction.gasFeeFormatted} SUI
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <h4 className="text-sm font-semibold text-secondary">{getTypeLabel(transaction.type)}</h4>
+              <span className="text-xs text-primary font-medium px-2 py-0.5 bg-primary/10 rounded">
+                {transaction.symbol || "SUI"}
               </span>
-            )}
+            </div>
+            <p className="text-xs text-gray-400 mt-0.5">{formatTimeAgo(transaction.timestamp)}</p>
           </div>
-        ) : (
-          <span className="text-sm font-bold text-gray-300">N/A</span>
-        )}
-      </td>
+        </div>
 
-      <td className="py-5 pr-6 rounded-r-2xl text-right">
-        <a
-          href={getTransactionExplorerUrl(transaction.digest, network)}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center justify-center w-10 h-10 rounded-xl text-gray-300 hover:text-primary hover:bg-primary/5 hover:border-primary/10 border border-transparent transition-all active:scale-90"
-          title="View in Explorer"
-        >
-          <ExternalLink className="w-4 h-4" />
-        </a>
-      </td>
-    </motion.tr>
+        {/* Right: Amount + Status */}
+        <div className="flex items-center gap-3">
+          <div className="text-right">
+            {transaction.amountFormatted ? (
+              <p
+                className={`text-base font-bold tabular-nums ${
+                  transaction.type === "sent" ? "text-rose-500" : "text-emerald-500"
+                }`}
+              >
+                {transaction.type === "sent" ? "-" : "+"}
+                {transaction.amountFormatted} {transaction.symbol}
+              </p>
+            ) : (
+              <p className="text-sm text-gray-400">N/A</p>
+            )}
+            <div className="flex items-center justify-end gap-1.5 mt-1">
+              <div
+                className={`w-1.5 h-1.5 rounded-full ${
+                  transaction.status === "success" ? "bg-emerald-500" : "bg-amber-500"
+                }`}
+              />
+              <span className="text-xs text-gray-500">
+                {transaction.status === "success" ? "Completed" : "Pending"}
+              </span>
+              <a
+                href={getTransactionExplorerUrl(transaction.digest, "mainnet")}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ml-1 text-gray-400 hover:text-primary transition-colors"
+                title="View in Explorer"
+              >
+                <ExternalLink className="w-3 h-3" />
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </motion.div>
   );
 }

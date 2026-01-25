@@ -21,7 +21,7 @@ export interface TransactionsData {
 }
 
 export function useTransactions(limit: number = 20): TransactionsData {
-  const { client, network } = useNetwork();
+  const { client } = useNetwork();
   const [transactions, setTransactions] = useState<TransactionSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -70,12 +70,12 @@ export function useTransactions(limit: number = 20): TransactionsData {
         setLoading(false);
       }
     },
-    [client, network, limit, cursor]
+    [client, limit, cursor]
   );
 
   useEffect(() => {
     loadTransactions(true);
-  }, [network]);
+  }, []);
 
   const loadMore = async () => {
     if (!loading && hasNextPage) {

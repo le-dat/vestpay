@@ -15,7 +15,7 @@ export interface WalletData {
 }
 
 export function useWallet() {
-  const { client, network } = useNetwork();
+  const { client } = useNetwork();
   const [walletData, setWalletData] = useState<WalletData>({
     address: "",
     email: "",
@@ -61,7 +61,7 @@ export function useWallet() {
 
   useEffect(() => {
     loadWalletData();
-  }, [network, loadWalletData]);
+  }, [loadWalletData]);
 
   const refresh = () => {
     loadWalletData();

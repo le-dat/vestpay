@@ -2,10 +2,9 @@
 
 import { useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { Copy, Check, AlertCircle } from "lucide-react";
+import { Copy, Check } from "lucide-react";
 import { Modal } from "@/shared/components/ui";
 import { useWallet } from "@/features/wallet";
-import { useNetwork } from "@/shared/contexts";
 
 interface DepositModalProps {
   isOpen: boolean;
@@ -14,7 +13,6 @@ interface DepositModalProps {
 
 export default function DepositModal({ isOpen, onClose }: DepositModalProps) {
   const { address } = useWallet();
-  const { network } = useNetwork();
   const [copied, setCopied] = useState(false);
 
   const handleCopyAddress = async () => {
@@ -72,16 +70,6 @@ export default function DepositModal({ isOpen, onClose }: DepositModalProps) {
           </div>
           <p className="text-xs text-gray-500 text-center">Send SUI tokens to this address</p>
         </div>
-
-        {/* Network Badge */}
-        {network !== "mainnet" && (
-          <div className="flex items-center gap-2 justify-center p-4 bg-amber-50 border border-amber-200 rounded-2xl">
-            <AlertCircle className="w-4 h-4 text-amber-600" />
-            <p className="text-xs font-semibold text-amber-600 uppercase tracking-wider">
-              {network} Network
-            </p>
-          </div>
-        )}
 
         {/* Instructions */}
         <div className="bg-gray-50 rounded-2xl p-4 space-y-2">

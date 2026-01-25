@@ -12,14 +12,14 @@ interface TransactionHistoryProps {
 }
 
 export default function TransactionHistory({ refreshTrigger }: TransactionHistoryProps) {
-  const { client, network } = useNetwork();
+  const { client } = useNetwork();
   const [transactions, setTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const walletInfo = getCachedWalletInfo();
 
   useEffect(() => {
     loadTransactions();
-  }, [network, walletInfo?.address, refreshTrigger]);
+  }, [walletInfo?.address, refreshTrigger]);
 
   const loadTransactions = async () => {
     if (!walletInfo?.address) return;
@@ -41,9 +41,7 @@ export default function TransactionHistory({ refreshTrigger }: TransactionHistor
   };
 
   const getExplorerUrl = (digest: string) => {
-    const baseUrl =
-      network === "mainnet" ? "https://suiscan.xyz/mainnet" : `https://suiscan.xyz/${network}`;
-    return `${baseUrl}/tx/${digest}`;
+    return `https://suiscan.xyz/mainnet/tx/${digest}`;
   };
 
   return (

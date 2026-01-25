@@ -16,7 +16,7 @@ interface SendModalProps {
 }
 
 export default function SendModal({ isOpen, onClose, onSuccess }: SendModalProps) {
-  const { client, network } = useNetwork();
+  const { client } = useNetwork();
   const { coins, refresh } = useWallet();
   const suiBalance = coins.find((c) => c.symbol === "SUI")?.balanceFormatted || "0";
   const [recipient, setRecipient] = useState("");
@@ -155,14 +155,6 @@ export default function SendModal({ isOpen, onClose, onSuccess }: SendModalProps
         {success && (
           <div className="bg-green-50 border border-green-200 rounded-2xl p-4">
             <p className="text-sm text-green-600 font-medium">{success}</p>
-          </div>
-        )}
-
-        {network !== "mainnet" && (
-          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-3">
-            <p className="text-xs font-semibold text-amber-600 text-center uppercase tracking-wider">
-              {network} Network
-            </p>
           </div>
         )}
 

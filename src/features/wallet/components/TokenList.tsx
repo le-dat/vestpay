@@ -16,14 +16,14 @@ interface TokenBalance {
 }
 
 export default function TokenList({ refreshTrigger }: TokenListProps) {
-  const { client, network } = useNetwork();
+  const { client } = useNetwork();
   const [tokens, setTokens] = useState<TokenBalance[]>([]);
   const [loading, setLoading] = useState(true);
   const walletInfo = getCachedWalletInfo();
 
   useEffect(() => {
     loadTokens();
-  }, [network, walletInfo?.address, refreshTrigger]);
+  }, [walletInfo?.address, refreshTrigger]);
 
   const loadTokens = async () => {
     if (!walletInfo?.address) return;

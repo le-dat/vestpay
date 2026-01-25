@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   reactCompiler: true,
   images: {
     unoptimized: true,
-    domains: ["app.scallop.io", "mstable.io", "archive.cetus.zone"],
+    domains: ["app.scallop.io", "mstable.io", "archive.cetus.zone", "cryptologos.cc"],
   },
 };
 
