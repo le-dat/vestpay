@@ -1,0 +1,45 @@
+{
+  "name": "passkey-sui",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "test:swap": "tsx scripts/test-swap.ts",
+    "test:swap:passkey": "tsx scripts/test-swap-passkey.ts"
+  },
+  "dependencies": {
+    "@cetusprotocol/aggregator-sdk": "^1.4.3",
+    "@flowx-finance/sdk": "^1.15.0",
+    "@mysten/sui": "^1.45.2",
+    "@noble/hashes": "^2.0.1",
+    "@scallop-io/sui-scallop-sdk": "^2.3.13",
+    "@suilend/sdk": "^1.1.99",
+    "@suilend/sui-fe": "^0.3.50",
+    "@types/qrcode.react": "^1.0.5",
+    "aftermath-ts-sdk": "^1.3.26",
+    "agentation": "^1.1.0",
+    "framer-motion": "^12.26.2",
+    "jose": "^6.1.3",
+    "lucide-react": "^0.562.0",
+    "next": "16.1.1",
+    "qrcode.react": "^4.2.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "zod": "^4.3.5"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "babel-plugin-react-compiler": "1.0.0",
+    "eslint": "^9",
+    "eslint-config-next": "16.1.1",
+    "tailwindcss": "^4",
+    "tsx": "^4.19.2",
+    "typescript": "^5"
+  }
+}
